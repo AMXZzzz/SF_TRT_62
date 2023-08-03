@@ -23,6 +23,7 @@
 
 ### 6. 打开cmake,按照[视频](https://www.bilibili.com/video/BV1pG411h743?p=3&vd_source=48769c3445e4933d438612c7cb69d59c)编译
 - 记得将Debug改为Release
+- 运行库选择MD
 
 ## [作者: Bilibili:随风而息](https://space.bilibili.com/120366874)
 ## 如果你觉得很酷,请给个赞+投币!
