@@ -286,7 +286,8 @@ void sf::trt::ITensorRt::imageToBlob(cv::Mat& img) {
 			//获取第i行首像素指针 
 			cv::Vec3b* p1 = img.ptr<cv::Vec3b>(h);
 			for (int w = 0; w < img.cols; ++w) {
-				input_memory[c * img.cols * img.rows + h * img.cols + w] = (p1[w][c]) / 255.0f;   //yolov5
+				input_memory[c * img.cols * img.rows + h * img.cols + w] = (p1[w][c]) *  _yolo->getNormalized();   //yolov5
+
 			}
 		}
 	}
