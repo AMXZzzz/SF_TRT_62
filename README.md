@@ -18,7 +18,7 @@
 - 打开CMakeLists.txt
 - 修改opencv的路径,就是上面记住的路径
 - 路径定位到build,即能看到include文件夹的
-- 检查分隔符是不是2个 **\\**
+- 检查分隔符是不是2个  **\\\\**
 - ctrl + s 保存
 
 ### 6. 打开cmake,按照[视频](https://www.bilibili.com/video/BV1pG411h743?p=3&vd_source=48769c3445e4933d438612c7cb69d59c)编译
