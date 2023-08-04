@@ -17,7 +17,7 @@
 ### 5.修改SF_TRT_62源码下的CMakeLists.txt
 - 打开CMakeLists.txt
 - 修改opencv的路径,就是上面记住的路径
-- 路径定位到build,即能看到include文件夹的
+- 路径定位到build,即能看到include文件夹
 - 检查分隔符是不是2个  **\\\\**
 - ctrl + s 保存
 
