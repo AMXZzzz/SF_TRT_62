@@ -5,10 +5,13 @@
 #include "sf-trt.h"
 #include "factory-base.h"
 
+
+
+
 class YOLO {
 public:
 
-	YOLO(float* conf, float* iou, Process* process):_conf(conf),_iou(iou),_process(process){}
+	YOLO(float* conf, float* iou, bool* showWindow, Process* process):_conf(conf),_iou(iou), _showWindow(showWindow) ,_process(process){}
 
 	// --------------------------- 获取信息API --------------------------- // 
 	//! 获取配置文件类型
@@ -26,6 +29,11 @@ public:
 	//! 常用于交接
 	virtual	float* getIOUPtr() {
 		return this->_iou;
+	}
+
+	//！ 显示窗口
+	virtual bool* getShowWindowPtr() {
+		return this->_showWindow;
 	}
 
 	//! 获取归一化的值
@@ -54,6 +62,7 @@ public:
 	virtual	const char** getOutputName() {
 		return this->output_name;
 	}
+
 
 	//! 获取输入图片的size
 	virtual const cv::Size getImageSize() {
@@ -87,17 +96,48 @@ public:
 		return 0;
 	}
 
-	// 可以公用
-	virtual void DrawBox(cv::Mat& img) {
-		for (size_t i = 0; i < _process->_indices.size(); ++i) {
-			rectangle(img, cv::Rect(_process->_boxes[int(_process->_indices[i])].x - (_process->_boxes[int(_process->_indices[i])].width * 0.5f),
-				_process->_boxes[int(_process->_indices[i])].y - (_process->_boxes[int(_process->_indices[i])].height * 0.5f),
-				_process->_boxes[int(_process->_indices[i])].width, _process->_boxes[int(_process->_indices[i])].height),
-				cv::Scalar(0, 255, 0), 2, 8, 0);
+	// 显示推理窗口
+	void DrawBox(cv::Mat& img) {
+		if (!*_showWindow) {
+			if (cv::getWindowProperty(WINDOWS_NAME, cv::WND_PROP_VISIBLE)) {
+				cv::destroyAllWindows();
+			}
+			return;
 		}
+
+		const auto& indices = _process->_indices;
+		const auto& boxes = _process->_boxes;
+		const int numIndices = indices.size();
+
+		cv::Scalar greenColor(0, 255, 0);
+		int lineThickness = 2;
+
+		for (int i = 0; i < numIndices; ++i) {
+			const auto& box = boxes[int(indices[i])];
+			const float halfWidth = box.width * 0.5f;
+			const float halfHeight = box.height * 0.5f;
+
+			cv::Rect rect(box.x - halfWidth, box.y - halfHeight, box.width, box.height);
+			cv::rectangle(img, rect, greenColor, lineThickness, cv::LINE_8, 0);
+		}
+
 		cv::imshow(WINDOWS_NAME, img);
+
+		if (cv::getWindowProperty(WINDOWS_NAME, cv::WND_PROP_VISIBLE)) {
+
+			cv::setWindowProperty(WINDOWS_NAME, cv::WND_PROP_TOPMOST, 1);
+		}
 		cv::waitKey(1);
-	};
+	}
+
+
+
+
+
+
+
+
+
 
 	//! 对输出进行解码
 	virtual void DecodeOutput(float* output, cv::Mat& img) = 0;
@@ -118,6 +158,7 @@ protected:
 
 	float* _conf = nullptr;
 	float* _iou = nullptr;
+	bool* _showWindow = nullptr;
 	Process* _process = nullptr;
 
 	float Normalized = 1.f / 255.f;
@@ -144,6 +185,9 @@ public:
 	//! 获取IOU指针
 	virtual IStates AcquireIOUPtr(float* iou);
 
+	//！窗口显示
+	virtual IStates AcquireShowWindowPtr(bool* showWindow);
+
 	//! 释放派生类和基类
 	void Release() override;
 
@@ -156,6 +200,7 @@ protected:
 
 	float* _conf = nullptr;
 	float* _iou = nullptr;
+	bool* _showWindow = false;
 	struct Process* _process = nullptr;
 	sf::Type::YoloType _type;
 };

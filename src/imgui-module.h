@@ -14,9 +14,11 @@
 
 class imguiUi : public uiBase {
 public:
-	virtual  IStates Init() override;
+	virtual IStates Init() override;
 
-	virtual  void Rendering() override;
+	virtual void GetParame() override;
+
+	virtual void Rendering() override;
 
 	imguiUi(Actuator* actuator, Parameter* parame, std::shared_ptr<spdlog::logger> logger) : uiBase(actuator, parame, logger) {}
 
@@ -36,6 +38,14 @@ private:
 	void PresentFrame();
 };
 
-
+struct FileBrowser {
+	static FileBrowser& Get() {
+		static FileBrowser m_pInstance;
+		return m_pInstance;
+	}
+	ImGui::FileBrowser cpu_onnx_dialog;
+	ImGui::FileBrowser config_dialog;
+	ImGui::FileBrowser engine_dialog;
+};
 
 

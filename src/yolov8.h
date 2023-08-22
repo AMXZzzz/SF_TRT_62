@@ -6,7 +6,7 @@ namespace sf {
 
 		class YOLOV8 final : public YOLO {	// 底(第一声)层模块
 		public:
-			YOLOV8(float* conf, float* iou, Process* process) :YOLO(conf, iou, process) {};
+			YOLOV8(float* conf, float* iou, bool* showWindow, Process* process) : YOLO(conf, iou, showWindow, process) {};
 			~YOLOV8() {};
 
 			//! 释放

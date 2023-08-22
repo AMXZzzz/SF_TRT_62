@@ -17,6 +17,7 @@ public:
 	//! 获取错误信息,必须重写
 	virtual	IStates getLastErrorInfo() = 0;
 
+
 protected:
 	YOLO* _yolo;							//! yolo配置表
 	std::shared_ptr<spdlog::logger> _logger = nullptr;	//! 指向日志的指针
@@ -27,6 +28,9 @@ public:
 	//! 若没有虚析构,则只会释放基类本身内存
 	//! 出现无法释放派生类的内存
 	virtual ~Frame() {};
+
+	VOID(*LockStart)();
+
 	Frame(YOLO* yolo)
 	: _yolo(yolo){}
 	Frame(YOLO* yolo, const std::shared_ptr<spdlog::logger>& logger)

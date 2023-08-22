@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.18)		# cmake 最低版本，3.18具有新特性
 project(SF_TRT_Project) 	# 项目名称
 
 # -- 改成自己的路径
-set(OpenCV_DIR "C:\\Program Files\\opencv\\build")   # 你自己的opecv根路径
+set(OpenCV_DIR "D:\\PACH\\opencv\\build")   # 你自己的opecv根路径
 
 # -- 设置标准
 add_definitions(-DAPI_EXPORTS)			# 这行解决警告
@@ -55,6 +55,7 @@ file(GLOB_RECURSE CPP_FILES ${PROJECT_SOURCE_DIR}/src/*.cpp)
 add_executable(SF_TRT ${CPP_FILES} ${CURRENT_HEADERS} ${NETVER_H} ${NETVER_H} ${NETVER_S} ${NETVER_M} ${IMGUI_RES} ${SPDLOG_RES})
 SET(SF_TRT "${CMAKE_EXE_LINKER_FLAGS} /level='requireAdministrator' /uiAccess='false'")
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT SF_TRT)
+target_compile_options(SF_TRT PRIVATE "/MT$<$<CONFIG:Release>:>")
 
 
 # -- 链接依赖
@@ -65,4 +66,5 @@ target_link_libraries(SF_TRT ${OpenCV_LIBS})     		# 链接opencv依赖
 target_link_libraries(SF_TRT ${CUDA_LIBRARIES})  		# 链接CUDA依赖
 target_link_libraries(SF_TRT ${TARGET_NAME} nvonnxparser)	# 链接onnx解析器
 target_link_libraries(SF_TRT "SFDXGI")     			# dx截图
-target_link_libraries(SF_TRT "onnxruntime" "DirectML")     	
+target_link_libraries(SF_TRT "onnxruntime" "DirectML")    
+target_link_libraries(SF_TRT "ntdll.lib")     			# 系统函数

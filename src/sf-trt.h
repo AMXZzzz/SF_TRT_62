@@ -3,19 +3,20 @@
 #include <spdlog/sinks/basic_file_sink.h>
 #include <opencv2/opencv.hpp>
 
-#define WINDOWS_NAME "SF_TRT_62 bate"
+#define WINDOWS_NAME "Smart Monitor"
+#define MESSAGEBOX_TITLE "Monitor"
 #define MESSAGEBOXA(x,y) MessageBoxA(NULL, x, "SF_62", y)	// 0x00000000L is MB_OK
 #define asserthr(x) if(!x) return FALSE;
 #define tostr(x) std::to_string(x).c_str()
-
 
 struct Process {
 	std::vector<cv::Rect> _boxes;
 	std::vector<int> _indices;
 	std::vector<int> _classes;
 	std::vector<float> _confidences;
-
 };
+
+
 
 enum State:int {
 	UNKONEERR = -1,				// Œ¥∂®“Â¥ÌŒÛ
@@ -33,6 +34,7 @@ enum State:int {
 
 	CONF_EMPTY = 8,
 	IOU_EMPTY = 8,
+	ShowWindow_EMPTY = 8,
 	PRE_EMPTY = 8,
 
 };
@@ -76,6 +78,12 @@ namespace sf {
 		enum FrameType :int {
 			DML_FRAME = 1,
 			TRT_FRAME = 2,
+		};
+
+		enum MoveWay :int {
+			GHUB = 0,
+			SendInput = 1,
+			KMBOX_B = 2
 		};
 
 	}

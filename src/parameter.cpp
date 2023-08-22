@@ -1,5 +1,4 @@
 #include "parameter.h"
-
 #define MAX_SIZE 256
 #define MapFileName L"SF_TRT_62"
 

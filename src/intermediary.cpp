@@ -53,11 +53,12 @@ bool Intermediary::startui() {
 
 	//! 初始化ui
 	ui->Init();
+	//! 初始化参数
+	ui->GetParame();
 
 	//! ui循环
 	while (_parame->uiStop) {
 		ui->Rendering();
 	}
-
 	return false;
 }

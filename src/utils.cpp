@@ -2,6 +2,8 @@
 #include <clocale>
 #include <windows.h>
 #include "utils.h"
+#include "config-module.h"
+
 std::wstring String2WString(const std::string& s) {
 	std::string strLocale = setlocale(LC_ALL, "");
 	const char* chSrc = s.c_str();
@@ -65,6 +67,19 @@ static std::string UnicodeToAnsi(const WCHAR* strSrc) {
 	}
 	return strRet;
 }
+
+
+std::string GetIniPath() {
+	ConfigModule* config = &ConfigModule::Get();
+	char exe_path[MAX_PATH];
+	std::string comfig_name = config->Config_name;
+	comfig_name = "\\" + comfig_name;
+	GetModuleFileNameA(NULL, exe_path, MAX_PATH);
+	std::string root_path = exe_path;
+	root_path = (root_path.substr(0, root_path.find_last_of("\\"))) + comfig_name;
+	return root_path;
+}
+
 
 std::string UTF8ToAnsi(const char* strSrc) {
 	return UnicodeToAnsi(UTF8ToUnicode(strSrc).c_str());

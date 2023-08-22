@@ -17,7 +17,6 @@ IStates uiFactory::AcquireLoggerPtr(std::shared_ptr<spdlog::logger> logger) {
 	return IStates();
 }
 
-
 IStates uiFactory::AcquireParamePtr(Parameter* parame) {
 	_parame = parame;
 	return IStates();

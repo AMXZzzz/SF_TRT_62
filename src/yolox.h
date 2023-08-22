@@ -6,7 +6,7 @@ namespace sf {
 
 		class YOLOX final :public YOLO {	// 底(第一声)层模块
 		public:
-			YOLOX(float* conf, float* iou, Process* process) :YOLO(conf, iou, process) {};
+			YOLOX(float* conf, float* iou, bool* showWindow, Process* process) : YOLO(conf, iou, showWindow, process) {};
 			~YOLOX() {};
 			
 			//! 获取归一化的值

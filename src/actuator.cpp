@@ -1,8 +1,9 @@
 #include "actuator.h"
-#include <SFDXGI.h>
 #include "trt-module.h"
 #include "dml-module.h"
-
+#include "imgui-module.h"
+#include "lock-module.h"
+#include <SFDXGI.h>
 
 DWORD WINAPI IThread(void* args) {
 
@@ -10,12 +11,12 @@ DWORD WINAPI IThread(void* args) {
 	Parameter* parame = actuator->getParameterPtr();
 	YOLO* yolo = actuator->getYoloConfig();
 	Frame* frame = actuator->getFrame();
-
-
+	LockMode* lock = &LockMode::Get();
+	lock->InitLock(parame->move_way);
 	// 初始化截图			 面向对象重构
 	SF_DXGI* sf = &SF_DXGI::Get();
-	sf->CaptureResource(yolo->getInputDims()[2], yolo->getInputDims()[3]);
 
+	sf->CaptureResource(yolo->getInputDims()[2], yolo->getInputDims()[3]);
 	cv::Mat img;
 	while (parame->executionStatus && parame->ai_is_run) {
 		//! 截图
@@ -24,20 +25,23 @@ DWORD WINAPI IThread(void* args) {
 		//! 推理
 		frame->Detect(img);
 
+	
 		//! 自瞄函数
+		lock->StratLock(parame);
+		//fire ->AimfFire(frame)
 	}
-
 	//! 释放,只能释放 sf ,yolo ,frame
 	if (cv::getWindowProperty(WINDOWS_NAME, cv::WND_PROP_VISIBLE))
 		cv::destroyWindow(WINDOWS_NAME);
+	lock->Release();
 	frame->Release();
 	sf->Release();
 	yolo->Release();
+	//fire->Release();
 
 	//! 复位
 	parame->executionStatus = true;
 	parame->ai_is_run = false;
-
 	return 0;
 }
 
@@ -66,6 +70,7 @@ bool Actuator::executionThread(int yolotype, int backend, char* model_path) {
 	factory->AcquireConfidencePtr(&_parame->conf);
 	factory->AcquireIOUPtr(&_parame->iou);
 	factory->AcquireProcessPtr(&_parame->process);
+	factory->AcquireShowWindowPtr(&_parame->showWindow);
 	IStates hr = factory->QueryInterface(reinterpret_cast<void**>(&_yolo));
 	if (hr.is_error()) {
 		std::cout << "错误信息:" << hr.msg() << std::endl;
@@ -106,6 +111,11 @@ bool Actuator::executionThread(int yolotype, int backend, char* model_path) {
 
 Parameter* Actuator::getParameterPtr() {
 	return _parame;
+}
+
+std::shared_ptr<spdlog::logger> Actuator::getLoggerPtr()
+{
+	return std::shared_ptr<spdlog::logger>();
 }
 
 YOLO* Actuator::getYoloConfig() {

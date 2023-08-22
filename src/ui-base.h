@@ -2,6 +2,9 @@
 #include "factory-base.h"
 #include "actuator.h"
 #include "sf-trt.h"
+#include "utils.h"
+#include "config-module.h"
+
 
 class uiBase {
 public:
@@ -10,16 +13,11 @@ public:
 
 	virtual void Rendering() = 0;
 
-	uiBase(Actuator* actuator,Parameter* parame, std::shared_ptr<spdlog::logger> logger) : _actuator(actuator), _parame(parame), _logger(logger) {}
+	virtual void GetParame() =0;
+
+	uiBase(Actuator* actuator,Parameter* parame, std::shared_ptr<spdlog::logger> logger) : _actuator(actuator), _parame(parame),_logger(logger) {}
 
 protected:
-	//! yolo类型
-	int yolo_type = 0;
-	//! 后端
-	int backend = 0;
-	//! 模型路径
-	char model_path[MAX_PATH] = "";
-
 	Actuator* _actuator = nullptr;
 	Parameter* _parame = nullptr;
 	std::shared_ptr<spdlog::logger> _logger;
@@ -53,5 +51,5 @@ private:
 	Parameter* _parame = nullptr;
 };
 
-
+   
 

@@ -16,7 +16,7 @@ namespace sf {
 				delete this;
 			}
 		public:
-			YOLOV5(float* conf, float* iou, Process* process) : YOLO(conf, iou, process) {};
+			YOLOV5(float* conf, float* iou, bool* showWindow ,Process* process) : YOLO(conf, iou, showWindow, process) {};
 			~YOLOV5() {};
 		};
 	}

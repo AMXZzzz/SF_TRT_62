@@ -26,7 +26,6 @@ void sf::Pattern::YOLOV5::DecodeOutput(float* output, cv::Mat& img) {
 				classidx = i;
 			}
 		}
-
 		cv::Rect temp;
 		temp.x = ((float*)output)[index];
 		temp.y = ((float*)output)[index + 1];
