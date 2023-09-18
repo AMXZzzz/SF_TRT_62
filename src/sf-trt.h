@@ -1,11 +1,11 @@
 #pragma once
 #include <iostream>
 #include <spdlog/sinks/basic_file_sink.h>
-#include <parameter.h>
 #include <dxgi-module.h>
+#include "frame.h"
+#include "lock.h"
 
 #define OPENCV_WINDOWS_NAME "SF_62"
-
 
 class Intermediary {
 public:
@@ -23,11 +23,12 @@ public:
 private:
 	std::shared_ptr<spdlog::logger> g_logger;	//！日志智能指针
 	Process process;							//！处理容器指针
-	Point point;								//! 截图参数
-	Parameter* parme;							//！共享内存指针
+	IPoint point;								//! 截图参数
+	IParameter* parame;							//！共享内存指针
 	//! 需要释放的指针
 	YOLO* yolo;									//！yolo指针		
 	Frame* frame;								//！frame指针	
 	DXGI* dxgi;									//！dxgi指针	
+	Lock* lock;									//! 移动逻辑
 };
 

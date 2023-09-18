@@ -2,7 +2,6 @@
 #define API_EXPORT
 #include "yolo.h"
 
-
 class _declspec(dllexport) YOLOV8 final : public YOLO {	// µ×(µÚÒ»Éù)²ãÄ£¿é
 public:
 

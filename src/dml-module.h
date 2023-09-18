@@ -1,10 +1,10 @@
 #pragma once
 #include <windows.h>
-#include <dml/dml_provider_factory.h>
+#include <dml_provider_factory.h>
 #include <opencv2/opencv.hpp>
 #include "frame.h"
 
-class SF_CLASS IDML final : public Frame{
+class IDML final : public Frame{
 public:
 	//  --------------------------- ∂‘Õ‚API --------------------------- // IStates
 

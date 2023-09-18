@@ -4,10 +4,10 @@
 #include <cuda_runtime_api.h>
 #include <NvInfer.h>
 #include "IStates.h"
-#include "trt/logging.h"
 #include "frame.h"
+#include <logging.h>
 
-class SF_CLASS ITensorRt final : public Frame {
+class ITensorRt final : public Frame {
 public:
 	//! 解析模型接口 IStates
 	bool AnalyticalModel(const char* engine_path) override;

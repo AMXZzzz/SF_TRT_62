@@ -1,9 +1,5 @@
 #include <iostream>
-#include <spdlog/sinks/basic_file_sink.h>
 #include <atltime.h>
-
-#include "yolo.h"
-#include "frame.h"
 #include "sf-trt.h"
 
 #define EXPORT extern "C" __declspec(dllexport)
@@ -19,9 +15,9 @@
 
 sf::Type::YoloType convertYoloType(int type) {
 	switch (type) {
-	case 0: return sf::Type::TYPE_YOLOV5;
-	case 1: return sf::Type::TYPE_YOLOV8;
-	case 2: return sf::Type::TYPE_YOLOX;
+	case 0: return sf::Type::YoloType::TYPE_YOLOV5;
+	case 1: return sf::Type::YoloType::TYPE_YOLOV8;
+	case 2: return sf::Type::YoloType::TYPE_YOLOX;
 	}
 }
 
@@ -40,19 +36,19 @@ bool Intermediary::InitSharedParame() {
 		return false;
 	}
 
-	parme = (Parameter*)MapViewOfFile(MapFile, FILE_MAP_ALL_ACCESS, 0, 0, MAX_SIZE);
-	if (parme == NULL) {
+	parame = (IParameter*)MapViewOfFile(MapFile, FILE_MAP_ALL_ACCESS, 0, 0, MAX_SIZE);
+	if (parame == NULL) {
 		return false;
 	}
 
 	//! ------------- 仅做测试 -------------
-	parme->conf = 0.3;
-	parme->iou = 0.1;
-	parme->showWindows = true;
-	parme->module_path = "clbq_yolov5s_1w_640.engine";
-	parme->yolo_type = 0;
-	parme->backend = 0;
-	parme->equipment = 0;
+	parame->conf = 0.3;
+	parame->iou = 0.1;
+	parame->showWindows = true;
+	parame->module_path = "clbq_yolov5s_1w_640.engine";
+	parame->yolo_type = 0;
+	parame->backend = 0;
+	parame->equipment = 0;
 
 	return true;
 }
@@ -71,14 +67,14 @@ bool Intermediary::InitLogger() {
 //! 初始化yolo
 bool Intermediary::InitYoloTable() {
 	//! 检查指针
-	if (&parme->conf == nullptr || &parme->iou == nullptr) {
+	if (&parame->conf == nullptr || &parame->iou == nullptr) {
 		LOGINFO("参数指针为nullptr")
 		return false;
 	}
 	YOLOINFO info{};
-	info.type = convertYoloType(parme->yolo_type);
-	info.conf = &parme->conf;
-	info.iou = &parme->iou;
+	info.type = convertYoloType(parame->yolo_type);
+	info.conf = &parame->conf;
+	info.iou = &parame->iou;
 	info.process = &process;
 	yolo = sf::createYoloTable(&info);
 	return true;
@@ -92,17 +88,17 @@ bool Intermediary::InitFrame() {
 		return false;
 	}
 	FRAMEINFO frame_info{};
-	frame_info.frame_type = convertBackend(parme->backend);
+	frame_info.frame_type = convertBackend(parame->backend);
 	frame_info.yolo = yolo;
 	frame_info.logger = getLogger();
-	frame_info.equipment = parme->equipment;
+	frame_info.equipment = parame->equipment;
 	frame = sf::CreateFrame(&frame_info);
 	return true;
 }
 
 //! 初始化模型
 bool Intermediary::InitModel() {
-	if (!frame->AnalyticalModel(parme->module_path)) {
+	if (!frame->AnalyticalModel(parame->module_path)) {
 		std::cout << frame->getLastErrorInfo().getErrorInfo() << std::endl;
 		LOGWARN("加载模型错误:{}", frame->getLastErrorInfo().getErrorInfo().c_str())
 		return false;
@@ -112,7 +108,17 @@ bool Intermediary::InitModel() {
 
 //! 初始化逻辑
 bool Intermediary::InitLock() {
+	LOCKINFO lock_info{};
+	lock_info.parame = parame;
+	lock_info.process = &process;
+	lock_info.point = &point;
+	lock_info.logger = getLogger();
+	lock = sf::crateLock(&lock_info);
 
+	if (!lock->initLock()) {
+		LOGWARN("初始化移动逻辑失败");
+		return false;
+	}
 
 	return true;
 }
@@ -134,21 +140,21 @@ bool Intermediary::InitDX() {
 bool Intermediary::Detection() {
 	cv::Mat img;
 	//! 置位信号
-	parme->aiStatus = true;		//! ai运行状态
+	parame->aiStatus = true;		//! ai运行状态
 
-	while (!parme->uiSendStop) {
+	while (!parame->uiSendStop) {
 		//! 截图
 		dxgi->BitmapToMat(&img);
 		//! 推理
 		frame->Detect(img);
 		//! 自瞄
-
+		lock->triggerMove();
 		//! 绘制
 		DrawBox(img);
 	}
 
 	//! 复位信号
-	parme->aiStatus = false;
+	parame->aiStatus = false;
 
 	//! 关闭窗口
 	if (cv::getWindowProperty(OPENCV_WINDOWS_NAME, cv::WND_PROP_VISIBLE))
@@ -159,7 +165,7 @@ bool Intermediary::Detection() {
 //! 绘制框
 void Intermediary::DrawBox(cv::Mat& img) {
 	//! 绘制框
-	if (parme->showWindows) {
+	if (parame->showWindows) {
 		for (size_t i = 0; i < process.indices.size(); ++i) {
 			cv::rectangle(img, cv::Rect(process.boxes[int(process.indices[i])].x - (process.boxes[int(process.indices[i])].width * 0.5f),
 				process.boxes[int(process.indices[i])].y - (process.boxes[int(process.indices[i])].height * 0.5f),
@@ -191,7 +197,11 @@ void Intermediary::Release() {
 		yolo->Release();
 		yolo = nullptr;
 	}
-
+	//! 释放lock
+	if (lock) {
+		lock->Release();
+		lock = nullptr;
+	}
 	delete this;
 }
 

@@ -1,5 +1,5 @@
-#pragma once
 #define API_EXPORT
+#pragma once
 #include "yolo.h"
 
 
@@ -16,8 +16,6 @@ public:
 
 	//!  Õ∑≈yolo
 	void Release();
-
-
 
 private:
 	~YOLOV5() {};

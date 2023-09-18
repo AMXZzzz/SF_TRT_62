@@ -1,5 +1,4 @@
 #define API_EXPORT
-
 #include "yolox.h"
 #include "yolov5.h"
 #include "yolov8.h"
