@@ -14,7 +14,7 @@
 #define LOGWARN(format,...)  if (getLogger()) {getLogger()->warn(TRTHEAD ## format, __VA_ARGS__);}
 #define LOGERROR(format,...) if (getLogger()) {getLogger()->error(TRTHEAD ## format, __VA_ARGS__);}
 
-bool start_thread(bool is_local);
+// bool start_thread(bool is_local);
 
 
 sf::Type::YoloType convertYoloType(int type) {
@@ -45,7 +45,7 @@ bool Intermediary::InitSharedParame() {
 		return false;
 	}
 
-	//! test初始化参数
+	//! ------------- 仅做测试 -------------
 	parme->conf = 0.3;
 	parme->iou = 0.1;
 	parme->showWindows = true;
@@ -64,6 +64,8 @@ bool Intermediary::InitLogger() {
 	_snprintf_s(temp, MAX_PATH, "logs/%d-%d-%d %d-%d-%d.txt", t.GetYear(), t.GetMonth(), t.GetDay(), t.GetHour(), t.GetMinute(), t.GetSecond());
 	g_logger = spdlog::basic_logger_mt("SF_TRT", temp);
 	g_logger->flush_on(spdlog::level::trace);
+
+	return true;
 }
 
 //! 初始化yolo
@@ -233,6 +235,8 @@ EXPORT bool start_thread(bool is_local = true) {
 Free:
 	//! 释放
 	intermediary->Release();
+
+	return true;
 }
 
 //! 入口函数
