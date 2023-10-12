@@ -1,8 +1,10 @@
 #pragma once
-#include<opencv2/opencv.hpp>
+#include <opencv2/opencv.hpp>
 #include <windows.h>
 
 #define LIBEXP extern "C" __declspec(dllexport)
+
+extern struct IPoint;
 
 typedef enum SF_DXGI_ERROR {
 	DXGI_ERROR = -1,			/* 无类型错误*/
@@ -17,20 +19,9 @@ typedef enum SF_DXGI_ERROR {
 
 }SF_DXGI_ERROR;
 
-struct Point {
-	int origin_x = 0;	//! 原点x
-	int origin_y = 0;	//! 原点y
-	int center_x = 0;	//! 中心点x
-	int center_y = 0;	//! 中心点y
-	int CapWidth = 0;	//! 截图范围-宽
-	int CapHeight = 0;	//! 截图范围-高
-	int WinWidth = 0;	//! 屏幕宽
-	int WinHeight = 0;	//! 屏幕高
-};
-
 class DXGI {
 public:
-	virtual void DXGIInitPont(Point* point) = 0;
+	virtual void DXGIInitPont(IPoint* point) = 0;
 
 	virtual SF_DXGI_ERROR CaptureResource(int,int) = 0;
 

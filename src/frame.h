@@ -3,10 +3,10 @@
 #include "yolo.h"
 #include "IStates.h"
 
-#ifndef CLASS_EXPORT
-#define SF_CLASS __declspec(dllimport)
+#ifndef API_EXPORT
+#define SF_API extern "C" __declspec(dllimport)
 #else
-#define SF_CLASS __declspec(dllexport)
+#define SF_API extern "C" __declspec(dllexport)
 #endif
 
 //! øÚº‹¿‡–Õ
