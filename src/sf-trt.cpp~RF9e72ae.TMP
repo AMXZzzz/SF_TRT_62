@@ -1,0 +1,146 @@
+/*
+* 免责声明：
+* 本软件是开源程序，您可以自由使用、修改和发布它，使用 GNU 通用公共许可证版本 2（GPLv2）的条款。
+* 请注意，在根据GPLv2发布本软件之前，您必须遵守以下条款：
+* 1. 任何修改和派生作品必须同样采用GPLv2，并在您的派生作品中提供GPLv2的完整文本。
+* 2. 您必须保留原始代码的版权通告，并在您的项目中明确指明原始作者和软件的来源。
+* 3. 如果您分发本软件，您必须提供完整的源代码，以满足GPLv2的要求。这包括您的修改和派生作品的源代码。
+* 4. 本软件是按"原样"提供的，不附带任何明示或暗示的保证。作者对于使用本软件造成的任何直接、间接、偶发、特殊、典型或惩戒性损害不承担责任。
+* 使用此代码即表示您同意遵守GPLv2的所有要求和免责声明的条件。
+* 请仔细阅读GNU通用公共许可证版本2以了解更多详细信息。您可以在 http ://www.gnu.org/licenses/gpl-2.0.html 上找到GPLv2的完整文本。
+* [作者姓名]: bilibili：随风而息
+* [地址]:https://github.com/AMXZzzz/SF_TRT_62.git
+* [日期]: 2023/10/26
+*/
+#include <atltime.h>
+#include "yolo_base.h"
+#include "frame_base.h"
+#include "Actuator.h"
+
+
+#define SHARED_MEMORY_SIZE 1024
+#define SHARED_MEMORY_NAME "sf_62_memory_name_v3"
+
+std::shared_ptr<spdlog::logger> g_logger;	//！日志智能指针
+bool InitLogger() {
+	// 初始化日志
+	CTime t = CTime::GetCurrentTime();
+	static char temp[MAX_PATH]{};
+	_snprintf_s(temp, MAX_PATH, "logs/%d-%d-%d %d-%d-%d.txt", t.GetYear(), t.GetMonth(), t.GetDay(), t.GetHour(), t.GetMinute(), t.GetSecond());
+	g_logger = spdlog::basic_logger_mt("SF_TRT", temp);
+	g_logger->flush_on(spdlog::level::trace);
+
+	return true;
+}
+
+void test() {
+
+	float conf = 0.3;
+	float iou = 0.1;
+	Process proce;
+
+	YOLO* yolo = nullptr;
+	Frame* frame = nullptr;
+
+	//! --------------------------------------- YOLO -------------------------------------- //
+	YOLOINFO yolo_info{};
+	//! yolov5
+	yolo_info.conf = &conf;
+	yolo_info.iou = &iou;
+	yolo_info.process = &proce;
+	yolo_info.type = sf::Type::YoloType::TYPE_YOLOV5;
+	yolo = sf::createYoloTable(&yolo_info);
+	std::cout << (yolo_info.type == 1 ? "yolov5" : "nukone") << std::endl;
+
+#if 0
+	//! yolov8
+	yolo_info.type = sf::Type::YoloType::TYPE_YOLOV8;
+	yolo = sf::createYoloTable(&yolo_info);
+	std::cout << (yolo_info.type == 2 ? "yolov8" : "nukone") << std::endl;
+	yolo->Release();
+
+	//! yolox
+	yolo_info.type = sf::Type::YoloType::TYPE_YOLOX;
+	yolo = sf::createYoloTable(&yolo_info);
+	std::cout << (yolo_info.type == 3 ? "yolox" : "nukone") << std::endl;
+	yolo->Release();
+#endif
+
+	//! --------------------------------------- 框架 -------------------------------------- //
+	FRAMEINFO frame_info{};
+#if 0
+	//! DML
+	frame_info.equipment = 0;		//! 运行设备索引
+	frame_info.yolo = yolo;			//! yolo对象
+	frame_info.logger = g_logger;		//! 日志指针
+	frame_info.frame_type = sf::Type::FrameType::DML_FRAME;	//! 框架类型
+	frame = sf::createFrame(&frame_info);
+
+	//! 加载模型
+	if (!frame->AnalyticalModel("cf_yolov5s_15w_640_2label.onnx")) {
+		std::cout <<"解析模型错误:" << frame->getLastErrorInfo().getErrorMessage() << std::endl;
+	}
+#else
+	//! TensorRt
+	frame_info.equipment = 0;		//! 运行设备索引
+	frame_info.yolo = yolo;			//! yolo对象
+	frame_info.logger = g_logger;		//! 日志指针
+	frame_info.frame_type = sf::Type::FrameType::TRT_FRAME;	//! 框架类型
+	frame = sf::createFrame(&frame_info);
+
+	//! 加载模型
+	if (!frame->AnalyticalModel("ckbq_yolov5n_2w5.engine")) {
+		std::cout << "解析模型错误:" << frame->getLastErrorInfo().getErrorMessage() << std::endl;
+	}
+#endif
+	yolo->Release();
+	frame->Release();
+}
+
+bool InitMemorySignal(MemorySignal* m_signal) {
+	//! 创建共享内存
+	HANDLE m_mapMemory = CreateFileMappingA(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, SHARED_MEMORY_SIZE, SHARED_MEMORY_NAME);
+	if (m_mapMemory == NULL) {
+		return false;
+	}
+	//! 映射共享内存
+	 m_signal = (MemorySignal*)MapViewOfFile(m_mapMemory, FILE_MAP_ALL_ACCESS, 0, 0, SHARED_MEMORY_SIZE);
+	if (m_signal == NULL) {
+		return false;
+	}
+	//! 加载配置文件的参数, 共享内存需要初始化，如果没有配置文件就使用默认设置
+
+	return true;
+}
+ 
+
+void ActuatorTest() {
+	//! 初始化共享内存
+	MemorySignal signal;
+	while (!InitMemorySignal(&signal)) {
+		Sleep(100);
+	}
+
+	//! 创建执行器
+	Actuator ac(&signal);
+	
+	while (signal.dll_exit_signal == false) {
+		if (signal.ai_start_signal == true) {
+
+		}
+
+
+	}
+
+
+}
+
+
+//! test
+int main(){
+	InitLogger();
+	test();			// 完成
+	ActuatorTest();
+
+	return 0;
+}
