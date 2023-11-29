@@ -12,15 +12,26 @@
 * [地址]:https://github.com/AMXZzzz/SF_TRT_62.git
 * [日期]: 2023/10/26
 */
+#pragma once
+#include <spdlog/sinks/basic_file_sink.h>
 
-
-struct MemorySignal {
+//! 跨进程数据指针
+struct Data {
 	float conf = 0.3;
 	float iou = 0.1;
+	std::shared_ptr<spdlog::logger> m_logger;  //! 日志指针
 
+};
 
-	//! 信号
+//! 跨进程信号
+struct Signal {
 	bool shared_memory_succecc = false;		//! 共享内存是否初始化完毕
 	bool dll_exit_signal = false;			//! 当置为true时，整个dll退出信号
 	bool ai_start_signal = false;			//! 当为true时，启动ai线程
+};
+
+struct SharedMemory {
+	Data s_data;
+	Signal s_signal;
+
 };

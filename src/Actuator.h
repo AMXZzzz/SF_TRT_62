@@ -29,12 +29,13 @@ public:
 	//! 等待线程退出
 	void join();
 	//! 有参构造
-	Actuator(MemorySignal* signal) : m_signal(signal){
-		if (signal == nullptr)  std::cout << "传入Actuator 的 MemorySignal 指针为空" << std::endl;
+	Actuator(SharedMemory* sharedmemory) : m_sharedmemory(sharedmemory){
+		//! debug
+		if (m_sharedmemory == nullptr)  std::cout << "传入Actuator 的 SharedMemory 指针为空" << std::endl;
 	}
 private:
 	std::shared_ptr<spdlog::logger> m_logger;	//！日志智能指针
-	MemorySignal* m_signal;						//! 共享内存信号
+	SharedMemory* m_sharedmemory;						//! 共享内存信号
 	YOLO* m_yolo ;								//! yolo类型基类
 	Frame* m_frame ;							//! 推理后端框架
 	Process* m_process;							//! 预（后）处理容器
@@ -49,6 +50,8 @@ private:
 	//! type: 推理框架，0：TensorRt， 1：DML
 	//! equipment: 运行设备索引，默认0
 	bool setFrameBack(int type, int equipment = 0);
+	//! 初始化资源
+	bool InitializeResources();
 	//! 工作线程
 	void word();
 	//! 禁用默认构造

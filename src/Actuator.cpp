@@ -12,9 +12,9 @@
 * [地址]:https://github.com/AMXZzzz/SF_TRT_62.git
 * [日期]: 2023/10/26
 */
-
-#include "Actuator.h"
 #include <atltime.h>
+#include "Actuator.h"
+
 
 #define SHARED_MEMORY_SIZE 1024
 #define SHARED_MEMORY_NAME "sf_62_memory_name_v3"
@@ -45,7 +45,6 @@ sf::Type::FrameType convertFrameType(int type) {
 	return sf::Type::FrameType::DML_FRAME;
 }
 
-
 bool Actuator::setSpdlog() {
 	// 初始化日志
 	CTime t = CTime::GetCurrentTime();
@@ -60,8 +59,8 @@ bool Actuator::setSpdlog() {
 bool Actuator::setYoloType(int type) {
 	//! 设置yolo属性
 	YOLOINFO yolo_info{};
-	yolo_info.conf = &m_signal->conf;
-	yolo_info.iou = &m_signal->iou;
+	yolo_info.conf = &m_sharedmemory->s_data.conf;
+	yolo_info.iou = &m_sharedmemory->s_data.iou;
 	yolo_info.type = convertYoloType(type);
 	yolo_info.process = m_process;
 
@@ -81,6 +80,21 @@ bool Actuator::setFrameBack(int type,int equipment) {
 	m_frame = sf::createFrame(&frame_info);
 	return false;
 }
+
+bool Actuator::InitializeResources() {
+	//! 日志是否初始化过了,表明没有打开UI端
+	if (m_logger) {
+		if (!setSpdlog()) { 
+			return false;
+		}
+	}
+	//! yolo类型
+
+	//! 初始化框架
+
+	return false;
+}
+
 
 void Actuator::start() {
 	if (!actuatorThreadHandle.joinable()) {
@@ -105,9 +119,11 @@ void Actuator::join() {
 	}
 }
 
+
 void Actuator::word() {
-	//! 初始化
-	
+	//! 初始化ALL
+	setSpdlog();
+
 	//! 运行
 	while (m_exit_signal == false) {
 		//! 截图
