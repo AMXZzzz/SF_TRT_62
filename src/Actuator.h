@@ -19,6 +19,7 @@
 #include "yolo_base.h"
 #include "frame_base.h"
 #include "sf-trt.h"
+#include "dxgi-module.h"
 
 class Actuator {
 public:
@@ -30,28 +31,30 @@ public:
 	void join();
 	//! 有参构造
 	Actuator(SharedMemory* sharedmemory) : m_sharedmemory(sharedmemory){
-		//! debug
-		if (m_sharedmemory == nullptr)  std::cout << "传入Actuator 的 SharedMemory 指针为空" << std::endl;
+		//! 
+		if (m_sharedmemory == nullptr)  std::cout << "传入 Actuator 的 SharedMemory 指针为空" << std::endl;
 	}
+	void Release();
 private:
 	std::shared_ptr<spdlog::logger> m_logger;	//！日志智能指针
-	SharedMemory* m_sharedmemory;						//! 共享内存信号
-	YOLO* m_yolo ;								//! yolo类型基类
-	Frame* m_frame ;							//! 推理后端框架
+	SharedMemory* m_sharedmemory;				//! 共享内存信号
+	YOLO* m_yolo;								//! yolo类型基类
+	Frame* m_frame;								//! 推理后端框架
 	Process* m_process;							//! 预（后）处理容器
+	IPoint m_point;
+	DXGI* dx;
+
 	std::thread actuatorThreadHandle;
 	bool m_exit_signal = false;
-	//! 初始化log
 	bool setSpdlog();
 	//! 初始化yolo框架类型
-	//! type: yolo类型，0：yolov5/v7 1：yolov8 2：yolox
-	bool setYoloType(int type);
+	bool setYoloType();
 	//! 初始化推理后端
-	//! type: 推理框架，0：TensorRt， 1：DML
-	//! equipment: 运行设备索引，默认0
-	bool setFrameBack(int type, int equipment = 0);
+	bool setFrameBack();
+	//! 初始化dxgi
+	bool setDxgiCpature();
 	//! 初始化资源
-	bool InitializeResources();
+	bool initializeResources();
 	//! 工作线程
 	void word();
 	//! 禁用默认构造

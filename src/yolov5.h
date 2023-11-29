@@ -27,7 +27,7 @@ public:
 	void DecodeOutput(float* output) override;
 
 	//!  Õ∑≈yolo
-	void Release();
+	void Release() override;
 
 private:
 	~YOLOV5() {};

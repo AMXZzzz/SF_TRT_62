@@ -19,6 +19,8 @@
 #define SHARED_MEMORY_SIZE 1024
 #define SHARED_MEMORY_NAME "sf_62_memory_name_v3"
 
+#define asserthr(x) if(!x) return false;
+
 // 宏重载
 #define TRTHEAD "[DLL]: "
 #define LOGINFO(format,...) if (m_logger) {m_logger->info(TRTHEAD ## format, __VA_ARGS__);} else {std::cout<<"spdlog未初始化"<<std::endl;}
@@ -26,11 +28,18 @@
 #define LOGERROR(format,...) if (m_logger) {m_logger->error(TRTHEAD ## format, __VA_ARGS__);}else {std::cout<<"spdlog未初始化"<<std::endl;}
 #define CHECK_TRT(x) (x==NULL)
 
+
 sf::Type::YoloType convertYoloType(int type) {
 	switch (type) {
-	case 0: return sf::Type::YoloType::TYPE_YOLOV5;
-	case 1: return sf::Type::YoloType::TYPE_YOLOV8;
-	case 2: return sf::Type::YoloType::TYPE_YOLOX;
+	case 0: 		
+		std::cout << "[debug]: YOLOV5" << std::endl; 
+		return sf::Type::YoloType::TYPE_YOLOV5;
+	case 1: 
+		std::cout << "[debug]: YOLOV8" << std::endl; 
+		return sf::Type::YoloType::TYPE_YOLOV8;
+	case 2: 		
+		std::cout << "[debug]: YOLOX" << std::endl; 
+		return sf::Type::YoloType::TYPE_YOLOX;
 	}
 	//! 默认使用yolov5
 	return sf::Type::YoloType::TYPE_YOLOV5;
@@ -38,12 +47,42 @@ sf::Type::YoloType convertYoloType(int type) {
 
 sf::Type::FrameType convertFrameType(int type) {
 	switch (type) {
-	case 0: return sf::Type::FrameType::TRT_FRAME;
-	case 1: return sf::Type::FrameType::DML_FRAME;
+	case 0: 
+		std::cout << "[debug]: TensorRt" << std::endl;
+		return sf::Type::FrameType::TRT_FRAME;
+	case 1: 
+		std::cout << "[debug]: DML" << std::endl; 
+		return sf::Type::FrameType::DML_FRAME;
 	}
 	//! 默认使用DML
+	std::cout << "[debug]: DML" << std::endl;
 	return sf::Type::FrameType::DML_FRAME;
 }
+
+#define WINDOWS_NAME "test"
+void DrawBox(Process* process,cv::Mat& img, bool show) {
+	// 画框
+	if (!show) {
+		if (cv::getWindowProperty("test", cv::WND_PROP_VISIBLE))
+			cv::destroyWindow(WINDOWS_NAME);
+	}
+	else {
+		for (int i = 0; i < process->indices.size(); ++i) {
+			cv::rectangle(img,
+				cv::Rect(
+					//process->boxes[process->indices[i]].x - (process->boxes[process->indices[i]].width * 0.5f),
+					//process->boxes[process->indices[i]].y - (process->boxes[process->indices[i]].height * 0.5f),
+					process->boxes[process->indices[i]].x,
+					process->boxes[process->indices[i]].y,
+					process->boxes[process->indices[i]].width,
+					process->boxes[process->indices[i]].height),
+				cv::Scalar(0, 255, 0), 2, 8, 0);
+		}
+		cv::imshow(WINDOWS_NAME, img);
+		cv::waitKey(1);
+	}
+}
+
 
 bool Actuator::setSpdlog() {
 	// 初始化日志
@@ -56,45 +95,77 @@ bool Actuator::setSpdlog() {
 	return true;
 }
 
-bool Actuator::setYoloType(int type) {
+bool Actuator::setYoloType() {
 	//! 设置yolo属性
 	YOLOINFO yolo_info{};
 	yolo_info.conf = &m_sharedmemory->s_data.conf;
 	yolo_info.iou = &m_sharedmemory->s_data.iou;
-	yolo_info.type = convertYoloType(type);
+	//! yolo类型，0：yolov5/v7 1：yolov8 2：yolox
+	yolo_info.type = convertYoloType(m_sharedmemory->s_info.yolo_tyoe);
 	yolo_info.process = m_process;
 
 	//! 创建yolo
 	m_yolo = sf::createYoloTable(&yolo_info);
+	if (m_yolo == nullptr) {
+		return false;
+	}
 	return true;
 }
 
-bool Actuator::setFrameBack(int type,int equipment) {
+bool Actuator::setFrameBack() {
 	//! 设置框架属性
 	FRAMEINFO frame_info{};
-	frame_info.equipment = equipment;
+	frame_info.equipment = m_sharedmemory->s_info.equipment;
 	frame_info.yolo = m_yolo;
 	frame_info.logger = m_logger;
-	frame_info.frame_type = convertFrameType(type);
+	frame_info.frame_type = convertFrameType(m_sharedmemory->s_info.frame_type);
 	//! 创建推理框架
 	m_frame = sf::createFrame(&frame_info);
-	return false;
-}
-
-bool Actuator::InitializeResources() {
-	//! 日志是否初始化过了,表明没有打开UI端
-	if (m_logger) {
-		if (!setSpdlog()) { 
-			return false;
-		}
+	if (m_frame == nullptr) {
+		return false;
 	}
-	//! yolo类型
-
-	//! 初始化框架
-
-	return false;
+	return true;
 }
 
+bool Actuator::setDxgiCpature(){
+	dx = sf::createDxgi(&m_point);
+	SF_DXGI_ERROR hr = dx->SetCaptureResource(m_yolo->getImageSize().width, m_yolo->getImageSize().height);
+	if (DXGI_SUCCECC != hr) {
+		switch (hr) {
+		case DXGI_DEVICE_ERROR:
+			std::cout << "[debug]: setDxgiCpature失败，错误：初始化d3ddevice失败" << std::endl;
+			break;
+		case DXGI_DEVICE2_ERROR:
+			std::cout << "[debug]: setDxgiCpature失败，错误：初始化d3ddevice2失败" << std::endl;
+			break;
+		case DXGI_DUPLICATE_ERROR:
+			std::cout << "[debug]: setDxgiCpature失败，错误：初始化d3d显示器信息失败" << std::endl;
+			break;
+		case DXGI_FACTORY_ERROR:
+			std::cout << "[debug]: setDxgiCpature失败，错误：创建工厂模板失败" << std::endl;
+			break;
+		}
+		return false;
+	}
+
+	return true;
+}
+
+bool Actuator::initializeResources() {
+	//! 日志是否初始化过
+	setSpdlog();
+	//! yolo类型对象
+	asserthr(setYoloType());
+	//! 初始化框架对象
+	asserthr(setFrameBack());
+	//! 初始化模型
+	m_frame->AnalyticalModel("cf_yolov5s_15w_640_2label.onnx");
+	//! 初始化截图对象
+	asserthr(setDxgiCpature());
+	//! 初始化自瞄对象
+
+	return true;
+}
 
 void Actuator::start() {
 	if (!actuatorThreadHandle.joinable()) {
@@ -121,17 +192,32 @@ void Actuator::join() {
 
 
 void Actuator::word() {
-	//! 初始化ALL
-	setSpdlog();
 
-	//! 运行
-	while (m_exit_signal == false) {
-		//! 截图
-		std::cout << "run" << std::endl;
-		//! 推理
-
-		//! 后处理
+	//! 初始化
+	if (initializeResources()) {
+		//! 运行
+		cv::Mat img;
+		while (m_exit_signal == false) {
+			//! 截图
+			if (dx->GetBitmapToMat(&img) != DXGI_SUCCECC) {
+				continue;
+			}
+			//! 推理
+			m_frame->Detect(img);
+			//! 后处理
+			DrawBox(m_process, img, m_sharedmemory->s_signal.show_detect_window);
+			//! 显示
+			cv::imshow("test", img);
+			cv::pollKey();
+		}
 	}
 
 	//! 释放资源
+	Release();
+}
+
+void Actuator::Release() {
+	dx->Release();
+	m_yolo->Release();
+	m_frame->Release();
 }

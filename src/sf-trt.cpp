@@ -21,7 +21,7 @@ bool initmem(SharedMemory** signal) {
 	if ((*signal)->s_signal.shared_memory_succecc) {
 		(*signal)->s_data.conf = 0.3;
 		(*signal)->s_data.iou = 0.1;
-		(*signal)->s_signal.ai_start_signal = false;
+		(*signal)->s_signal.ai_start_signal = true;
 		(*signal)->s_signal.dll_exit_signal = false;
 		(*signal)->s_signal.shared_memory_succecc = true;
 	}
@@ -32,10 +32,15 @@ bool initmem(SharedMemory** signal) {
 void test() {
 	//! 初始化共享内存
 	SharedMemory* sharedmemory;
-	if (!initmem(&sharedmemory)) return;
+	if (!initmem(&sharedmemory)) return;  //! 一定要在UI端初始化共享内存，否则退出
 
 	//! 创建执行器
 	Actuator ac(sharedmemory);
+
+	//! test
+	sharedmemory->s_signal.ai_start_signal = true;
+	sharedmemory->s_signal.show_detect_window = true;
+	sharedmemory->s_info.frame_type = 1;
 
 	//! 监听循环
 	while (sharedmemory->s_signal.dll_exit_signal == false) {
@@ -48,12 +53,12 @@ void test() {
 
 		//! 监听到退出dll信号
 		if (sharedmemory->s_signal.dll_exit_signal == true) {
-			sharedmemory->s_signal.dll_exit_signal = false;		//! 复位信号,不然加载dll执行到这就自动退出
+			sharedmemory->s_signal.dll_exit_signal = false;		//! 复位信号,不然执行到这就自动退出
 			ac.exit();		//! 使执行器线程退出
 			ac.join();		//! 等待执行器退出
 			//! 卸载自身dll，如果有
 			
-			//! 释放共享内存
+			//! 释放共享内存,
 		}
 	}
 }
@@ -61,6 +66,5 @@ void test() {
 //! 测试
 int main() {
 	test();
-
 	return 0;
 }

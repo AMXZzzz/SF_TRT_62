@@ -28,10 +28,18 @@ struct Signal {
 	bool shared_memory_succecc = false;		//! 共享内存是否初始化完毕
 	bool dll_exit_signal = false;			//! 当置为true时，整个dll退出信号
 	bool ai_start_signal = false;			//! 当为true时，启动ai线程
+	bool show_detect_window = false;				//! 显示窗口
+};
+
+//! 跨进程配置信息
+struct Info {
+	int yolo_tyoe = 0;						//! yolo类型
+	int frame_type = 0;						//! 框架类型
+	int equipment = 0;						//! 设备索引
 };
 
 struct SharedMemory {
 	Data s_data;
 	Signal s_signal;
-
+	Info s_info;
 };

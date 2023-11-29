@@ -30,7 +30,7 @@ public:
 	void DecodeOutput(float* output) override;
 
 	//! Ö÷¶¯ÊÍ·Å
-	void Release();
+	void Release() override;
 
 
 private:
