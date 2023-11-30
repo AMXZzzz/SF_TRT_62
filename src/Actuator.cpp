@@ -63,23 +63,26 @@ sf::Type::FrameType convertFrameType(int type) {
 void DrawBox(Process* process,cv::Mat& img, bool show) {
 	// 画框
 	if (!show) {
-		if (cv::getWindowProperty("test", cv::WND_PROP_VISIBLE))
+		if (cv::getWindowProperty(WINDOWS_NAME, cv::WND_PROP_VISIBLE))
 			cv::destroyWindow(WINDOWS_NAME);
 	}
 	else {
 		for (int i = 0; i < process->indices.size(); ++i) {
 			cv::rectangle(img,
 				cv::Rect(
-					//process->boxes[process->indices[i]].x - (process->boxes[process->indices[i]].width * 0.5f),
-					//process->boxes[process->indices[i]].y - (process->boxes[process->indices[i]].height * 0.5f),
+#if CENTER_COORDINATE
+					process->boxes[process->indices[i]].x - (process->boxes[process->indices[i]].width * 0.5f),
+					process->boxes[process->indices[i]].y - (process->boxes[process->indices[i]].height * 0.5f),
+#else
 					process->boxes[process->indices[i]].x,
 					process->boxes[process->indices[i]].y,
+#endif
 					process->boxes[process->indices[i]].width,
 					process->boxes[process->indices[i]].height),
 				cv::Scalar(0, 255, 0), 2, 8, 0);
 		}
 		cv::imshow(WINDOWS_NAME, img);
-		cv::waitKey(1);
+		cv::pollKey();
 	}
 }
 
@@ -159,7 +162,9 @@ bool Actuator::initializeResources() {
 	//! 初始化框架对象
 	asserthr(setFrameBack());
 	//! 初始化模型
-	m_frame->AnalyticalModel("cf_yolov5s_15w_640_2label.onnx");
+	if (!m_frame->AnalyticalModel(m_sharedmemory->s_info.model_path)) {
+		std::cout << "[debug]: 解析模型失败，错误信息: " << m_frame->getLastErrorInfo().getErrorMessage() << std::endl;
+	}
 	//! 初始化截图对象
 	asserthr(setDxgiCpature());
 	//! 初始化自瞄对象
@@ -186,10 +191,9 @@ void Actuator::join() {
 		std::cout << "Actuator 线程已退出" << std::endl;
 	}
 	else {
-		std::cout << "Actuator线程未启动" << std::endl;
+		std::cout << "Actuator线程未启动" << std::endl; 
 	}
 }
-
 
 void Actuator::word() {
 
@@ -206,9 +210,6 @@ void Actuator::word() {
 			m_frame->Detect(img);
 			//! 后处理
 			DrawBox(&m_process, img, m_sharedmemory->s_signal.show_detect_window);
-			//! 显示
-			cv::imshow("test", img);
-			cv::pollKey();
 		}
 	}
 

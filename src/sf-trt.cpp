@@ -1,9 +1,10 @@
 #include "Actuator.h"
 
 
-#define MAX_SIZE 1024
-#define MapFileName "sf_61_shared_memory"
+#define MAX_SIZE 1024						//! 共享内存大小
+#define MapFileName "sf_61_shared_memory"   //! 共享内存ID
 
+//! 初始化共享内存
 bool initmem(SharedMemory** signal) {
 	HANDLE MapFile = CreateFileMappingA(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, MAX_SIZE, MapFileName);
 	if (MapFile == NULL) {
@@ -27,16 +28,17 @@ void test() {
 	//! 创建执行器
 	Actuator ac(sharedmemory);
 
-	//! test
+
 	//! 共享内存创建时，值是不定值，如signal->ai_start_signal 可能是false,也可能是true
-	//! 如果ui端已经初始化共享内存，则跳过初始化
-	sharedmemory->s_signal.dll_exit_signal = false;
-	sharedmemory->s_signal.ai_start_signal = true;
-	sharedmemory->s_signal.show_detect_window = true;
-	sharedmemory->s_info.frame_type = 1;
-	sharedmemory->s_info.yolo_tyoe =  0;
-	sharedmemory->s_data.conf =  0.3;
-	sharedmemory->s_data.iou =  0.1;
+	//! 固定值，尝试：ui端已经初始化共享内存，则跳过初始化
+	sharedmemory->s_signal.dll_exit_signal = false;								//! dll 退出信号
+	sharedmemory->s_signal.ai_start_signal = true;								//! 执行器开始信号
+	sharedmemory->s_signal.show_detect_window = true;							//! 显示检测窗口信号
+	sharedmemory->s_info.frame_type = 1;										//! 推理框架
+	sharedmemory->s_info.yolo_tyoe =  0;										//! yolo类型
+	sharedmemory->s_data.conf =  0.3;											//! 置信度
+	sharedmemory->s_data.iou =  0.1;											//! iou置信度
+	sharedmemory->s_info.model_path = "cf_yolov5s_15w_640_2label.onnx";			//! 模型路径
 
 	//! 监听循环
 	while (sharedmemory->s_signal.dll_exit_signal == false) {
@@ -55,6 +57,7 @@ void test() {
 			//! 卸载自身dll，如果有
 			
 			//! 释放共享内存,
+			
 		}
 	}
 }
