@@ -45,6 +45,8 @@ void YOLOX::DecodeOutput(float* output) {
 		float h = exp(output[basic_pos + 3]) * stride;
 		float x0 = x_center - w * 0.5f;     //中心点转原点   除法比乘法慢
 		float y0 = y_center - h * 0.5f;
+
+
 		float box_objectness = output[basic_pos + 4];
 
 		//num_class的置信度
@@ -55,8 +57,13 @@ void YOLOX::DecodeOutput(float* output) {
 			//置信度筛选
 			if (box_prob > *m_conf) {
 				cv::Rect rect;
+#if CENTER_COORDINATE
 				rect.x = x_center;
 				rect.y = y_center;
+#else
+				rect.x = x0;
+				rect.y = y0;
+#endif
 				rect.width = w;
 				rect.height = h;
 

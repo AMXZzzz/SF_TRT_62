@@ -23,6 +23,7 @@ YOLO* sf::createYoloTable(YOLOINFO* info) {
 	case sf::Type::TYPE_YOLOV8: return new YOLOV8(info->conf, info->iou, info->process);
 	case sf::Type::TYPE_YOLOX: return new YOLOX(info->conf, info->iou, info->process);
 	}
+	return NULL;
 }
 
 sf::Type::YoloType YOLO::getYoloType() {

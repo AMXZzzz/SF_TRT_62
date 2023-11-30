@@ -40,9 +40,10 @@ private:
 	SharedMemory* m_sharedmemory;				//! 共享内存信号
 	YOLO* m_yolo;								//! yolo类型基类
 	Frame* m_frame;								//! 推理后端框架
-	Process* m_process;							//! 预（后）处理容器
-	IPoint m_point;
 	DXGI* dx;
+	Process m_process;							//! 预（后）处理容器
+	IPoint m_point;
+
 
 	std::thread actuatorThreadHandle;
 	bool m_exit_signal = false;

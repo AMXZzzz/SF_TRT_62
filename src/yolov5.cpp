@@ -42,10 +42,18 @@ void YOLOV5::DecodeOutput(float* output) {
 		}
 
 		cv::Rect temp;
+#if CENTER_COORDINATE
 		temp.x = ((float*)output)[index];
 		temp.y = ((float*)output)[index + 1];
 		temp.width = ((float*)output)[index + 2];
 		temp.height = ((float*)output)[index + 3];
+#else
+		temp.x = ((float*)output)[index] - (((float*)output)[index + 2] * 0.5);
+		temp.y = ((float*)output)[index + 1] - (((float*)output)[index + 3] * 0.5);
+		temp.width = ((float*)output)[index + 2];
+		temp.height = ((float*)output)[index + 3];
+#endif
+
 		m_process->boxes.push_back(temp);
 		m_process->classes.push_back(classidx);
 		m_process->confidences.push_back(confidence);

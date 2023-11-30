@@ -48,11 +48,17 @@ void YOLOV8::DecodeOutput(float* output) {
 		if (*max_class_scores > *m_conf) {
 
 			cv::Rect_<float> bbox;
+#if CENTER_COORDINATE
 			bbox.x = *(bboxesPtr + 0);
 			bbox.y = *(bboxesPtr + 1);
 			bbox.width = *(bboxesPtr + 2);
 			bbox.height = *(bboxesPtr + 3);
-
+#else
+			bbox.width = *(bboxesPtr + 2);
+			bbox.height = *(bboxesPtr + 3);
+			bbox.x = *(bboxesPtr + 0) - (bbox.width * 0.5);
+			bbox.y = *(bboxesPtr + 1) - (bbox.height * 0.5);
+#endif
 			m_process->boxes.push_back(bbox);
 			m_process->confidences.push_back(*max_class_scores);
 			m_process->classes.push_back((max_class_scores - scoresPtr));

@@ -14,17 +14,7 @@ bool initmem(SharedMemory** signal) {
 	if (*signal == NULL) {
 		return false;
 	}
-
-	//! 共享内存创建时，值是不定值，如signal->ai_start_signal 可能是false,也可能是true
-	//! 这里使用字符串来判断是否初始化过，如果ui端未初始化，则在dll端初始化
-	//! 如果ui端已经初始化共享内存，则跳过初始化
-	if ((*signal)->s_signal.shared_memory_succecc) {
-		(*signal)->s_data.conf = 0.3;
-		(*signal)->s_data.iou = 0.1;
-		(*signal)->s_signal.ai_start_signal = true;
-		(*signal)->s_signal.dll_exit_signal = false;
-		(*signal)->s_signal.shared_memory_succecc = true;
-	}
+	
 	return true;
 }
 
@@ -38,9 +28,15 @@ void test() {
 	Actuator ac(sharedmemory);
 
 	//! test
+	//! 共享内存创建时，值是不定值，如signal->ai_start_signal 可能是false,也可能是true
+	//! 如果ui端已经初始化共享内存，则跳过初始化
+	sharedmemory->s_signal.dll_exit_signal = false;
 	sharedmemory->s_signal.ai_start_signal = true;
 	sharedmemory->s_signal.show_detect_window = true;
 	sharedmemory->s_info.frame_type = 1;
+	sharedmemory->s_info.yolo_tyoe =  0;
+	sharedmemory->s_data.conf =  0.3;
+	sharedmemory->s_data.iou =  0.1;
 
 	//! 监听循环
 	while (sharedmemory->s_signal.dll_exit_signal == false) {

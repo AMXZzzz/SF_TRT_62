@@ -100,9 +100,9 @@ bool Actuator::setYoloType() {
 	YOLOINFO yolo_info{};
 	yolo_info.conf = &m_sharedmemory->s_data.conf;
 	yolo_info.iou = &m_sharedmemory->s_data.iou;
+	yolo_info.process = &m_process;
 	//! yolo类型，0：yolov5/v7 1：yolov8 2：yolox
 	yolo_info.type = convertYoloType(m_sharedmemory->s_info.yolo_tyoe);
-	yolo_info.process = m_process;
 
 	//! 创建yolo
 	m_yolo = sf::createYoloTable(&yolo_info);
@@ -205,7 +205,7 @@ void Actuator::word() {
 			//! 推理
 			m_frame->Detect(img);
 			//! 后处理
-			DrawBox(m_process, img, m_sharedmemory->s_signal.show_detect_window);
+			DrawBox(&m_process, img, m_sharedmemory->s_signal.show_detect_window);
 			//! 显示
 			cv::imshow("test", img);
 			cv::pollKey();

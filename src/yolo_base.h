@@ -17,6 +17,8 @@
 #include <windows.h>
 #include <opencv2/opencv.hpp>
 
+#define CENTER_COORDINATE  0	//! 使用中心点为坐标
+
 
 //! yolo类型的命名空间
 namespace sf {
