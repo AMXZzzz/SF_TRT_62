@@ -20,6 +20,7 @@
 #include "frame_base.h"
 #include "sf-trt.h"
 #include "dxgi-module.h"
+#include "lock_base.h"
 
 class Actuator {
 public:
@@ -34,26 +35,31 @@ public:
 		//! 
 		if (m_sharedmemory == nullptr)  std::cout << "传入 Actuator 的 SharedMemory 指针为空" << std::endl;
 	}
+	//! 释放
 	void Release();
 private:
-	std::shared_ptr<spdlog::logger> m_logger;	//！日志智能指针
-	SharedMemory* m_sharedmemory;				//! 共享内存信号
+	DXGI* dx;									//! dx截图对象
 	YOLO* m_yolo;								//! yolo类型基类
 	Frame* m_frame;								//! 推理后端框架
-	DXGI* dx;									//! dx截图对象
+	SharedMemory* m_sharedmemory;				//! 共享内存信号
+	std::shared_ptr<spdlog::logger> m_logger;	//！日志智能指针
+	LOCK* lock;									//! 自瞄逻辑对象
+
 	Process m_process;							//! 预（后）处理容器
-	IPoint m_point;
+	IPoint m_point;								//! 坐标点信息
+	bool m_exit_signal = false;					//! 退出中间变量
+	std::thread actuatorThreadHandle;			//! 线程句柄
 
-
-	std::thread actuatorThreadHandle;
-	bool m_exit_signal = false;
+	//! 初始化日志，尝试：优化至UI端
 	bool setSpdlog();
 	//! 初始化yolo框架类型
-	bool setYoloType();
+	bool setYoloConfigObject();
 	//! 初始化推理后端
-	bool setFrameBack();
+	bool setDetectFrameworkObject();
 	//! 初始化dxgi
-	bool setDxgiCpature();
+	bool setDXGICpatureObject();
+	//! 设置lock对象
+	bool setLockLogicObject();
 	//! 初始化资源
 	bool initializeResources();
 	//! 工作线程

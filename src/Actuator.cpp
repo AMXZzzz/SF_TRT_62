@@ -86,7 +86,6 @@ void DrawBox(Process* process,cv::Mat& img, bool show) {
 	}
 }
 
-
 bool Actuator::setSpdlog() {
 	// 初始化日志
 	CTime t = CTime::GetCurrentTime();
@@ -98,7 +97,7 @@ bool Actuator::setSpdlog() {
 	return true;
 }
 
-bool Actuator::setYoloType() {
+bool Actuator::setYoloConfigObject() {
 	//! 设置yolo属性
 	YOLOINFO yolo_info{};
 	yolo_info.conf = &m_sharedmemory->s_data.conf;
@@ -115,7 +114,7 @@ bool Actuator::setYoloType() {
 	return true;
 }
 
-bool Actuator::setFrameBack() {
+bool Actuator::setDetectFrameworkObject() {
 	//! 设置框架属性
 	FRAMEINFO frame_info{};
 	frame_info.equipment = m_sharedmemory->s_info.equipment;
@@ -130,7 +129,7 @@ bool Actuator::setFrameBack() {
 	return true;
 }
 
-bool Actuator::setDxgiCpature(){
+bool Actuator::setDXGICpatureObject(){
 	dx = sf::createDxgi(&m_point);
 	SF_DXGI_ERROR hr = dx->SetCaptureResource(m_yolo->getImageSize().width, m_yolo->getImageSize().height);
 	if (DXGI_SUCCECC != hr) {
@@ -154,21 +153,27 @@ bool Actuator::setDxgiCpature(){
 	return true;
 }
 
+bool Actuator::setLockLogicObject() {
+
+
+}
+
+
 bool Actuator::initializeResources() {
 	//! 日志是否初始化过
 	setSpdlog();
 	//! yolo类型对象
-	asserthr(setYoloType());
+	asserthr(setYoloConfigObject());
 	//! 初始化框架对象
-	asserthr(setFrameBack());
+	asserthr(setDetectFrameworkObject());
 	//! 初始化模型
 	if (!m_frame->AnalyticalModel(m_sharedmemory->s_info.model_path)) {
 		std::cout << "[debug]: 解析模型失败，错误信息: " << m_frame->getLastErrorInfo().getErrorMessage() << std::endl;
 	}
 	//! 初始化截图对象
-	asserthr(setDxgiCpature());
+	asserthr(setDXGICpatureObject());
 	//! 初始化自瞄对象
-
+	setLockLogicObject();
 	return true;
 }
 
