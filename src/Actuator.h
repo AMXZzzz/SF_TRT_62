@@ -40,7 +40,7 @@ private:
 	SharedMemory* m_sharedmemory;				//! 共享内存信号
 	YOLO* m_yolo;								//! yolo类型基类
 	Frame* m_frame;								//! 推理后端框架
-	DXGI* dx;
+	DXGI* dx;									//! dx截图对象
 	Process m_process;							//! 预（后）处理容器
 	IPoint m_point;
 

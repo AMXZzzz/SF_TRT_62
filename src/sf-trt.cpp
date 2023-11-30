@@ -34,11 +34,11 @@ void test() {
 	sharedmemory->s_signal.dll_exit_signal = false;								//! dll 退出信号
 	sharedmemory->s_signal.ai_start_signal = true;								//! 执行器开始信号
 	sharedmemory->s_signal.show_detect_window = true;							//! 显示检测窗口信号
-	sharedmemory->s_info.frame_type = 1;										//! 推理框架
+	sharedmemory->s_info.frame_type = 0;										//! 推理框架
 	sharedmemory->s_info.yolo_tyoe =  0;										//! yolo类型
 	sharedmemory->s_data.conf =  0.3;											//! 置信度
 	sharedmemory->s_data.iou =  0.1;											//! iou置信度
-	sharedmemory->s_info.model_path = "cf_yolov5s_15w_640_2label.onnx";			//! 模型路径
+	sharedmemory->s_info.model_path = "ckbq_yolov5n_2w5.engine";			//! 模型路径
 
 	//! 监听循环
 	while (sharedmemory->s_signal.dll_exit_signal == false) {

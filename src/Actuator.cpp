@@ -196,7 +196,6 @@ void Actuator::join() {
 }
 
 void Actuator::word() {
-
 	//! 初始化
 	if (initializeResources()) {
 		//! 运行
