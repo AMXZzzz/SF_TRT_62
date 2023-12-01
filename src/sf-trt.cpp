@@ -46,6 +46,7 @@ void test() {
 	sharedmemory->s_signal.dll_exit_signal = false;								//! dll 退出信号
 	sharedmemory->s_signal.ai_start_signal = true;								//! 执行器开始信号
 	sharedmemory->s_signal.show_detect_window = true;							//! 显示检测窗口信号
+	sharedmemory->s_info.mousec_type = 2;										//! 使用sendinput
 	sharedmemory->s_info.frame_type = 0;										//! 推理框架
 	sharedmemory->s_info.yolo_tyoe =  0;										//! yolo类型
 	sharedmemory->s_data.conf =  0.3;											//! 置信度

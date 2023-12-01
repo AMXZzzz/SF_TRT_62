@@ -13,19 +13,42 @@
 * [日期]: 2023/10/26
 */
 #pragma once
+#include "mouse_base.h"
 
+namespace sf {
+	namespace Type {
+		enum LockManner :int {
+			Functional = 0,
+			Multithread = 1,
+		};
+	}
+}
 
 struct LockInfo {
-
+	sf::Type::LockManner manner;	//! 自瞄的方式
+	MouseInfo mouse_info;			//! 鼠标执行方式
 };
 
 class  LOCK {
 public:
+	LOCK(MouseInfo mouseinfo): m_mouse_info(mouseinfo){std::cout << "[debug]: LOCK基类构造" << std::endl;}
+	//! 初始化lock 
+	virtual bool initLock() = 0;
+	//! 获取错误信息
+	virtual IStates getLastError() = 0;
+	//! 执行自瞄
+	virtual void action() = 0;
+	//! 释放
 	virtual void Release() = 0;
-
-
+	virtual ~LOCK() { 
+		m_mouse->close();
+		std::cout << "[debug]: LOCK基类释放" << std::endl;
+	};
+protected:
+	IMouse* m_mouse;
+	MouseInfo m_mouse_info{};
 private:
-
+	LOCK() {};	//! 禁用默认构造
 };
 
 namespace sf {

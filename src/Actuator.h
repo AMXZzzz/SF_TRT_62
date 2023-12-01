@@ -38,12 +38,12 @@ public:
 	//! 释放
 	void Release();
 private:
-	DXGI* dx;									//! dx截图对象
-	YOLO* m_yolo;								//! yolo类型基类
-	Frame* m_frame;								//! 推理后端框架
-	SharedMemory* m_sharedmemory;				//! 共享内存信号
+	DXGI* m_dx;									//! dx截图对象
+	LOCK* m_lock;								//! 自瞄逻辑对象
+	YOLO* m_yolo;								//! yolo对象
+	Frame* m_frame;								//! 推理后端对象
+	SharedMemory* m_sharedmemory;				//! 共享内存对象
 	std::shared_ptr<spdlog::logger> m_logger;	//！日志智能指针
-	LOCK* lock;									//! 自瞄逻辑对象
 
 	Process m_process;							//! 预（后）处理容器
 	IPoint m_point;								//! 坐标点信息

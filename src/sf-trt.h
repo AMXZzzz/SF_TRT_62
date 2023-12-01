@@ -28,6 +28,8 @@ struct Info {
 	int yolo_tyoe = 0;						//! yolo类型 0是yolov5, 1是yolov8, 2是yolox
 	int frame_type = 0;						//! 框架类型 0是tensrort, 1是dml
 	int equipment = 0;						//! 设备索引 
+	int lock_type = 0;						//! 自瞄逻辑的方式 
+	int mousec_type = 0;					//! 移动方式 
 	std::string model_path = "";			//! 模型路径
 
 };
