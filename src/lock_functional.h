@@ -16,6 +16,8 @@ public:
 	//! 释放
 	void Release() override;
 private:
+	//! 计算和准星的距离
+	void setContainer(std::vector<float>* distance, std::vector<int>* indices, int idx);
 	~Functional(){std::cout << "[debug]: Functional 派生类析构" << std::endl;}
 };
 

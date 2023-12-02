@@ -26,6 +26,16 @@ namespace sf {
 	}
 }
 
+struct IRect {
+	float origin_x;	//! 备份
+	float origin_y;
+	float width;
+	float height;
+	float center_x;
+	float center_y;
+	//float aim_y;
+};
+
 struct LockInfo {
 	sf::Type::LockManner manner;	//! 自瞄的方式
 	MouseInfo mouse_info;			//! 鼠标执行方式
@@ -35,7 +45,11 @@ struct LockInfo {
 
 class  LOCK {
 public:
-	LOCK(LockInfo info): m_mouse_info(info.mouse_info), m_process(info.process), m_sharedmemory(info.sharedmemory){std::cout << "[debug]: LOCK基类构造" << std::endl;}
+	LOCK(LockInfo info): m_mouse_info(info.mouse_info), m_process(info.process), m_sharedmemory(info.sharedmemory){
+		std::cout << "[debug]: LOCK基类构造" << std::endl;
+		if (m_process == nullptr) {std::cout << "[debug]: 传入LOCK的process指针为空" << std::endl;}
+		if (m_sharedmemory == nullptr) {std::cout << "[debug]: 传入LOCK的sharedmemory指针为空" << std::endl;}
+	}
 	//! 初始化lock 
 	virtual IStates initLock() = 0;
 	//! 执行自瞄
@@ -47,6 +61,7 @@ public:
 		std::cout << "[debug]: LOCK基类释放" << std::endl;
 	};
 protected:
+	IPoint m_point;
 	IMouse* m_mouse;				//! 鼠标对象
 	Process* m_process;				//! 先验框
 	MouseInfo m_mouse_info{};		//! 鼠标配置

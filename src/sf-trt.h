@@ -13,13 +13,13 @@
 * [日期]: 2023/10/26
 */
 #pragma once
-//! 跨进程数据指针
+//! 跨进程数据指针,实时性
 struct Data {
 	float conf = 0.3;							//! 置信度指针
 	float iou = 0.1;							//! iou置信度指针
 };
 
-//! 跨进程配置信息
+//! 跨进程配置信息，配置性
 struct Info {
 	int yolo_tyoe = 0;						//! yolo类型 0是yolov5, 1是yolov8, 2是yolox
 	int frame_type = 0;						//! 框架类型 0是tensrort, 1是dml
@@ -36,6 +36,11 @@ struct Signal {
 	bool dll_exit_signal = false;			//! 当置为true时，整个dll退出信号
 	bool ai_start_signal = false;			//! 当为true时，启动ai线程
 	bool show_detect_window = false;		//! 显示窗口
+	bool category_filter = false;			//! 类别筛选
+	bool first_class = false;				//! 第一个类别
+	bool second_class = false;				//! 第二个类别
+	bool third_class = false;				//! 第三个类别
+	bool fourth_class = false;				//! 第四个类别
 };
 
 struct SharedMemory {
