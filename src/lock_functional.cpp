@@ -1,5 +1,6 @@
 #include "lock_functional.h"
 
+
 IStates Functional::initLock() {
 
 	//! 创建mousec对象
@@ -20,7 +21,13 @@ IStates Functional::initLock() {
 }
 
 void Functional::action() {
-	m_mouse->move(10, 10);
+	//! 移动逻辑
+	
+	m_mouse->move(1, 1);
+
+
+
+
 }
 
 void Functional::Release() {

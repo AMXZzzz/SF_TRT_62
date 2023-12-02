@@ -1,6 +1,5 @@
 #include "mouse_sendinput.h"
 
-
 IStates ISendInput::init() {
     input.type = INPUT_MOUSE;
     input.mi.mouseData = 0;
@@ -18,6 +17,26 @@ IStates ISendInput::move(int x, int y) {
     }
 }
 
+void ISendInput::trigger() {
+    INPUT input{};
+    input.type = INPUT_MOUSE;
+    input.mi.dwFlags = MOUSEEVENTF_LEFTDOWN;   //MOUSEEVENTF_LEFTDOWN ×ó¼ü°´ÏÂ
+    input.mi.time = 0;
+    input.mi.dwExtraInfo = 0;
+    SendInput(1, &input, sizeof(INPUT));
+
+    input.type = INPUT_MOUSE;
+    input.mi.dwFlags = MOUSEEVENTF_LEFTUP;   // MOUSEEVENTF_LEFTUP  ×ó¼üËÉ¿ª
+    input.mi.time = 0;
+    input.mi.dwExtraInfo = 0;
+    SendInput(1, &input, sizeof(INPUT));
+}
+
+bool ISendInput::monitor(int key) {
+    return GetAsyncKeyState(key);
+}
+
 IStates ISendInput::close() {
     return IStates(true,"SenInput close done");
 }
+

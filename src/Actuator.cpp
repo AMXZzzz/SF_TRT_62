@@ -121,7 +121,12 @@ bool Actuator::setSpdlog() {
 	// 初始化日志
 	CTime t = CTime::GetCurrentTime();
 	static char temp[MAX_PATH]{};
-	_snprintf_s(temp, MAX_PATH, "logs/%d-%d-%d %d-%d-%d.txt", t.GetYear(), t.GetMonth(), t.GetDay(), t.GetHour(), t.GetMinute(), t.GetSecond());
+	if (m_sharedmemory->s_info.logger_path == "") {
+		_snprintf_s(temp, MAX_PATH, "logs/%d-%d-%d %d-%d-%d.txt", t.GetYear(), t.GetMonth(), t.GetDay(), t.GetHour(), t.GetMinute(), t.GetSecond());
+	}
+	else {
+		_snprintf_s(temp, MAX_PATH, "%s/logs/%d-%d-%d %d-%d-%d.txt", m_sharedmemory->s_info.logger_path.data(), t.GetYear(), t.GetMonth(), t.GetDay(), t.GetHour(), t.GetMinute(), t.GetSecond());
+	}
 	m_logger = spdlog::basic_logger_mt("SF_TRT", temp);
 	m_logger->flush_on(spdlog::level::trace);
 	return true;
@@ -177,8 +182,9 @@ bool Actuator::setLockLogicObject() {
 	LockInfo lock_info{};
 	lock_info.manner = convertLockType(m_sharedmemory->s_info.lock_type);
 	lock_info.mouse_info = mouse_info;
+
 	//! 初始化lock对象
-	m_lock = sf::createLock(&lock_info);
+	m_lock = sf::createLock(lock_info);
 	if (m_lock == nullptr) {
 		std::cout << "[debug]: setLockLogicObject失败" << std::endl;
 		return false;
@@ -186,8 +192,8 @@ bool Actuator::setLockLogicObject() {
 	IStates hr = m_lock->initLock();
 	//! 初始化lock
 	if (hr.is_error()) {
-		std::cout << "[debug]:" << m_lock->getLastError().getErrorMessage() << std::endl;
-		LOGERROR("初始化Lock失败:{}",m_lock->getLastError().getErrorMessage())
+		std::cout << "[debug]:" << hr.getErrorMessage() << std::endl;
+		LOGERROR("初始化Lock失败:{}", hr.getErrorMessage())
 		return false;
 	}
 	return true;

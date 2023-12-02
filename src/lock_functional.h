@@ -1,11 +1,12 @@
 #pragma once
 #include "lock_base.h"
 #include "IState.h"
+#include "yolo_base.h"
 
 
 class Functional: public LOCK {
 public:
-	Functional(MouseInfo mouseinfo):LOCK(mouseinfo){
+	Functional(LockInfo info):LOCK(info){
 		std::cout << "[debug]: Functional 派生类构造" << std::endl;
 	}
 	//! 初始化lock 

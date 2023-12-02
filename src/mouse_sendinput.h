@@ -13,4 +13,8 @@ public:
 
 private:
 	INPUT input;
+
+	// Í¨¹ý IMouse ¼Ì³Ð
+	bool monitor(int key) override;
+	void trigger() override;
 };

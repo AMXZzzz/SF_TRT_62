@@ -13,14 +13,10 @@
 * [日期]: 2023/10/26
 */
 #pragma once
-#include <spdlog/sinks/basic_file_sink.h>
-
 //! 跨进程数据指针
 struct Data {
 	float conf = 0.3;							//! 置信度指针
 	float iou = 0.1;							//! iou置信度指针
-	std::shared_ptr<spdlog::logger> m_logger;	//! 日志指针
-
 };
 
 //! 跨进程配置信息
@@ -31,6 +27,7 @@ struct Info {
 	int lock_type = 0;						//! 自瞄逻辑的方式 
 	int mousec_type = 0;					//! 移动方式 
 	std::string model_path = "";			//! 模型路径
+	std::string logger_path = "";			//! 模型路径
 
 };
 

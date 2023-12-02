@@ -15,10 +15,10 @@
 #include "lock_base.h"
 #include "lock_functional.h"
 
-LOCK* sf::createLock(LockInfo* info) {
-	switch (info->manner) {
-	case sf::Type::LockManner::Functional: return new Functional(info->mouse_info);
-	case sf::Type::LockManner::Multithread: return new Functional(info->mouse_info);
+LOCK* sf::createLock(LockInfo info) {
+	switch (info.manner) {
+	case sf::Type::LockManner::Functional: return new Functional(info);
+	case sf::Type::LockManner::Multithread: return new Functional(info);
 	}
     return nullptr;
 }

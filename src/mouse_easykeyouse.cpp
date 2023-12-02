@@ -14,9 +14,17 @@ IStates IEasyKeyMouse::move(int x, int y) {
     return IStates();
 }
 
+bool IEasyKeyMouse::monitor(int key) {
+    return GetAsyncKeyState(key);
+}
+
+void IEasyKeyMouse::trigger() {
+    M_LeftClick(easy_key_mouse_handle, 1);
+}
+
 IStates IEasyKeyMouse::close() {
     if (INVALID_HANDLE_VALUE != easy_key_mouse_handle) {
         M_Close(easy_key_mouse_handle);
     }
-    return IStates(true,"易键鼠释放完成");
+    return IStates(true, "易键鼠释放完成");
 }

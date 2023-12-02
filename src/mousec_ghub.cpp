@@ -28,10 +28,17 @@ static IStates getNtStatus(HANDLE handle, PCWSTR device_name) {
     return IStates();
 }
 
-static void sendMoveOrderToDrive(HANDLE handle,int x,int y){
+static void moveOrderToDrive(HANDLE handle,int x,int y){
     MOUSE_IO io;
     io.x = x;
     io.y = y;
+    IO_STATUS_BLOCK block;
+    NtDeviceIoControlFile(handle, 0, 0, 0, &block, 0x2a2010, &io, sizeof(io), 0, 0);
+}
+
+static void clickOrderToDrive(HANDLE handle,int key){
+    MOUSE_IO io;
+    io.button = key;
     IO_STATUS_BLOCK block;
     NtDeviceIoControlFile(handle, 0, 0, 0, &block, 0x2a2010, &io, sizeof(io), 0, 0);
 }
@@ -58,28 +65,38 @@ IStates IGHUB::move(int x, int y) {
         int x_left = x; 
         int y_left = y;
         if (abs(x) > 127) {
-            sendMoveOrderToDrive(ghub_handle, int(x / abs(x)) * 127, 0);
+            moveOrderToDrive(ghub_handle, int(x / abs(x)) * 127, 0);
             x_left = x - int(x / abs(x)) * 127;
         }
         else {
-            sendMoveOrderToDrive(ghub_handle, x, 0);
+            moveOrderToDrive(ghub_handle, x, 0);
             x_left = 0;
         }
         if (abs(x) > 127) {
-            sendMoveOrderToDrive(ghub_handle, 0,int(y / abs(y)) * 127);
+            moveOrderToDrive(ghub_handle, 0,int(y / abs(y)) * 127);
             y_left = y - int(y / abs(y)) * 127;
         }
         else {
-            sendMoveOrderToDrive(ghub_handle, 0,y);
+            moveOrderToDrive(ghub_handle, 0,y);
             y_left = 0;
         }
         return move(x_left, y_left);
     }
     else {
-        sendMoveOrderToDrive(ghub_handle, x, y);
+        moveOrderToDrive(ghub_handle, x, y);
     }
     return IStates();
 }
+
+bool IGHUB::monitor(int key) {
+    return GetAsyncKeyState(key);
+}
+
+void IGHUB::trigger() {
+    clickOrderToDrive(ghub_handle,1);       //! 激活左键
+    clickOrderToDrive(ghub_handle, 0);      //! 释放左键
+}
+
 
 IStates IGHUB::close() {
     if (ghub_handle != NULL) {
@@ -88,3 +105,4 @@ IStates IGHUB::close() {
     }
     return IStates(true,"罗技驱动释放成功");
 }
+

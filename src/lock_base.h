@@ -14,6 +14,8 @@
 */
 #pragma once
 #include "mouse_base.h"
+#include "sf-trt.h"
+#include "base_type.h"
 
 namespace sf {
 	namespace Type {
@@ -27,15 +29,15 @@ namespace sf {
 struct LockInfo {
 	sf::Type::LockManner manner;	//! 自瞄的方式
 	MouseInfo mouse_info;			//! 鼠标执行方式
+	Process* process;
+	SharedMemory* sharedmemory;
 };
 
 class  LOCK {
 public:
-	LOCK(MouseInfo mouseinfo): m_mouse_info(mouseinfo){std::cout << "[debug]: LOCK基类构造" << std::endl;}
+	LOCK(LockInfo info): m_mouse_info(info.mouse_info), m_process(info.process), m_sharedmemory(info.sharedmemory){std::cout << "[debug]: LOCK基类构造" << std::endl;}
 	//! 初始化lock 
 	virtual IStates initLock() = 0;
-	//! 获取错误信息
-	virtual IStates getLastError() = 0;
 	//! 执行自瞄
 	virtual void action() = 0;
 	//! 释放
@@ -45,13 +47,15 @@ public:
 		std::cout << "[debug]: LOCK基类释放" << std::endl;
 	};
 protected:
-	IMouse* m_mouse;
-	MouseInfo m_mouse_info{};
+	IMouse* m_mouse;				//! 鼠标对象
+	Process* m_process;				//! 先验框
+	MouseInfo m_mouse_info{};		//! 鼠标配置
+	SharedMemory* m_sharedmemory;	//! 共享内存，优化单信号
 private:
 	LOCK() {};	//! 禁用默认构造
 };
 
 namespace sf {
-	LOCK* createLock(LockInfo* info);
+	LOCK* createLock(LockInfo info);
 }
 
