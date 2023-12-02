@@ -1,5 +1,6 @@
 #pragma once
 #include "IState.h"
+
 namespace sf {
 	namespace Type {
 		enum MousecType :int {

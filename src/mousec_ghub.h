@@ -1,16 +1,15 @@
 #pragma once
+
 #include "mouse_base.h"
-#include "Windows.h"
+#include <winnt.h>
 
-class ISendInput: public IMouse {
+class IGHUB: public IMouse {
 public:
-	//! 初始化移动
-	IStates init() override;
-	//! 移动方法
-	IStates move(int x, int y) override;
-	//! 释放
-	IStates close() override;
 
+	// 通过 IMouse 继承
+	IStates init() override;
+	IStates move(int x, int y) override;
+	IStates close() override;
 private:
-	INPUT input;
+	HANDLE ghub_handle;
 };
