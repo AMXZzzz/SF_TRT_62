@@ -26,14 +26,13 @@ namespace sf {
 	}
 }
 
-struct IRect {
-	float origin_x;	//! 备份
+struct IRect {		//! 最近目标信息
+	float origin_x;	
 	float origin_y;
 	float width;
 	float height;
 	float center_x;
 	float center_y;
-	//float aim_y;
 };
 
 struct LockInfo {

@@ -18,14 +18,14 @@
 #define MapFileName "sf_61_shared_memory"   //! 共享内存ID
 
 //! 初始化共享内存
-bool initmem(SharedMemory** signal) {
+bool initmem(SharedMemory** sharedmemory) {
 	HANDLE MapFile = CreateFileMappingA(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, MAX_SIZE, MapFileName);
 	if (MapFile == NULL) {
 		return false;
 	}
 
-	*signal = (SharedMemory*)MapViewOfFile(MapFile, FILE_MAP_ALL_ACCESS, 0, 0, MAX_SIZE);
-	if (*signal == NULL) {
+	*sharedmemory = (SharedMemory*)MapViewOfFile(MapFile, FILE_MAP_ALL_ACCESS, 0, 0, MAX_SIZE);
+	if (*sharedmemory == NULL) {
 		return false;
 	}
 	
@@ -52,7 +52,7 @@ void test() {
 	sharedmemory->s_data.conf =  0.3;											//! 置信度
 	sharedmemory->s_data.iou =  0.1;											//! iou置信度
 	sharedmemory->s_info.model_path = "ckbq_yolov5n_2w5.engine";				//! 模型路径
-	sharedmemory->s_info.logger_path = "";										//! 日志
+	sharedmemory->s_info.logger_path = "";										//! 日志存放路径
 
 	//! 监听循环
 	while (sharedmemory->s_signal.dll_exit_signal == false) {

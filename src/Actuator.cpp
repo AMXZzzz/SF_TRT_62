@@ -92,7 +92,6 @@ static sf::Type::LockManner convertLockType(int type) {
 
 #define WINDOWS_NAME "test"
 void DrawBox(Process* process, cv::Mat& img, bool show) {
-	// 画框
 	if (!show) {
 		if (cv::getWindowProperty(WINDOWS_NAME, cv::WND_PROP_VISIBLE))
 			cv::destroyWindow(WINDOWS_NAME);

@@ -13,10 +13,13 @@
 * [日期]: 2023/10/26
 */
 #pragma once
+
 //! 跨进程数据指针,实时性
 struct Data {
 	float conf = 0.3;							//! 置信度指针
 	float iou = 0.1;							//! iou置信度指针
+	float aim_position = 0.7;					//! 瞄准位置
+	int aim_range = 200;						//! 自瞄范围,以屏幕中间为中心的 aim_range * aim_range正方形
 };
 
 //! 跨进程配置信息，配置性
