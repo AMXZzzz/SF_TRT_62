@@ -9,15 +9,12 @@ public:
 		std::cout << "[debug]: Functional 派生类构造" << std::endl;
 	}
 	//! 初始化lock 
-	bool initLock() override;
-	//! 获取错误信息
-	IStates getLastError() override;
+	IStates initLock() override;
 	//! 开始动作
 	void action() override;
 	//! 释放
 	void Release() override;
 private:
-	std::vector<IStates> m_states; 
 	~Functional(){std::cout << "[debug]: Functional 派生类析构" << std::endl;}
 };
 

@@ -25,7 +25,7 @@ static IStates getNtStatus(HANDLE handle, PCWSTR device_name) {
     if (!NT_SUCCESS(hr)) {
         return IStates(false, "创建Nt驱动对象失败");
     }
-    IStates();
+    return IStates();
 }
 
 static void sendMoveOrderToDrive(HANDLE handle,int x,int y){

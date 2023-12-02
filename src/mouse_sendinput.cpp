@@ -13,10 +13,9 @@ IStates ISendInput::init() {
 IStates ISendInput::move(int x, int y) {
     input.mi.dx = x;
     input.mi.dy = y;
-    return (SendInput(1, &input, sizeof(input)) == 0) ? IStates(false, "SendInput 执行失败") : IStates(true, "SendInput 成功");
-
-    //SendInput(1, &input, sizeof(input));
-    //return IStates();
+    if (SendInput(1, &input, sizeof(input)) == 0) {
+        return IStates(false, "SendInput 执行失败");
+    }
 }
 
 IStates ISendInput::close() {

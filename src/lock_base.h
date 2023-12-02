@@ -33,7 +33,7 @@ class  LOCK {
 public:
 	LOCK(MouseInfo mouseinfo): m_mouse_info(mouseinfo){std::cout << "[debug]: LOCK基类构造" << std::endl;}
 	//! 初始化lock 
-	virtual bool initLock() = 0;
+	virtual IStates initLock() = 0;
 	//! 获取错误信息
 	virtual IStates getLastError() = 0;
 	//! 执行自瞄

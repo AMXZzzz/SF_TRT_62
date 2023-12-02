@@ -161,17 +161,19 @@ bool Actuator::setDetectFrameworkObject() {
 	//! 初始化模型
 	if (!m_frame->AnalyticalModel(m_sharedmemory->s_info.model_path)) {
 		std::cout << "[debug]: 解析模型失败，错误信息: " << m_frame->getLastErrorInfo().getErrorMessage() << std::endl;
+		LOGERROR("解析模型失败,错误:{}", m_frame->getLastErrorInfo().getErrorMessage())
 		return false;
 	}
 	return true;
 }
 
 bool Actuator::setLockLogicObject() {
-	//! 创建鼠标移动info
+	//! 配置鼠标移动
 	MouseInfo mouse_info{};
 	mouse_info.mousec_manner = convertMousecType(m_sharedmemory->s_info.mousec_type);
+	mouse_info.data = "com3";
 
-	//! 初始化lock info
+	//! 配置自瞄信息
 	LockInfo lock_info{};
 	lock_info.manner = convertLockType(m_sharedmemory->s_info.lock_type);
 	lock_info.mouse_info = mouse_info;
@@ -181,8 +183,9 @@ bool Actuator::setLockLogicObject() {
 		std::cout << "[debug]: setLockLogicObject失败" << std::endl;
 		return false;
 	}
+	IStates hr = m_lock->initLock();
 	//! 初始化lock
-	if (!m_lock->initLock()) {	
+	if (hr.is_error()) {
 		std::cout << "[debug]:" << m_lock->getLastError().getErrorMessage() << std::endl;
 		LOGERROR("初始化Lock失败:{}",m_lock->getLastError().getErrorMessage())
 		return false;
@@ -197,15 +200,19 @@ bool Actuator::setDXGICpatureObject() {
 		switch (hr) {
 		case DXGI_DEVICE_ERROR:
 			std::cout << "[debug]: setDxgiCpature失败，错误：初始化d3ddevice失败" << std::endl;
+			LOGERROR("初始化d3ddevice失败")
 			break;
 		case DXGI_DEVICE2_ERROR:
 			std::cout << "[debug]: setDxgiCpature失败，错误：初始化d3ddevice2失败" << std::endl;
+			LOGERROR("初始化d3ddevice2失败")
 			break;
 		case DXGI_DUPLICATE_ERROR:
 			std::cout << "[debug]: setDxgiCpature失败，错误：初始化d3d显示器信息失败" << std::endl;
+			LOGERROR("初始化d3d输出信息失败, 请将程序设置在直连显示器的GPU上")
 			break;
 		case DXGI_FACTORY_ERROR:
 			std::cout << "[debug]: setDxgiCpature失败，错误：创建工厂模板失败" << std::endl;
+			LOGERROR("创建工厂模板失败")
 			break;
 		}
 		return false;
@@ -225,7 +232,6 @@ bool Actuator::initializeResources() {
 	asserthr(setDXGICpatureObject());
 	//! 初始化自瞄对象
 	asserthr(setLockLogicObject());
-		
 	return true;
 }
 

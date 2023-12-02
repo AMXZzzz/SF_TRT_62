@@ -64,11 +64,12 @@ void test() {
 
 		//! 监听到退出dll信号
 		if (sharedmemory->s_signal.dll_exit_signal == true) {
-			sharedmemory->s_signal.dll_exit_signal = false;		//! 复位信号,不然执行到这就自动退出
 			ac.exit();		//! 使执行器线程退出
 			ac.join();		//! 等待执行器退出
 			//! 释放
 			ac.Release();
+			//! 复位信号
+			sharedmemory->s_signal.dll_exit_signal = false;		
 			//! 卸载自身dll，如果有
 		}
 	}
@@ -79,3 +80,11 @@ int main() {
 	test();
 	return 0;
 }
+
+
+/*
+	代做，
+		为每个类添加debug,
+		添加注释
+		添加日志
+*/
