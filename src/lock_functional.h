@@ -16,7 +16,7 @@
 #include "lock_base.h"
 #include "IState.h"
 #include "yolo_base.h"
-
+#include "control_algorithm.h"
 
 class Functional: public LOCK {
 public:
@@ -31,8 +31,16 @@ public:
 	//! 释放
 	void Release() override;
 private:
+	Control control_x;
+	Control control_y;
+
+	bool lock_mutex = true;
+
+
 	//! 计算和准星的距离
 	void categoryFilter(std::vector<float>* distance, std::vector<int>* indices, int idx);
+	//! 执行扳机
+	void executeTrigger(TargetInfo* target);
 	//! 自动扳机
 	void autoTrigger(TargetInfo* target);
 	//! 单移动

@@ -25,11 +25,22 @@ struct Data {
 	int aim_key3 = 0x02;						//! 自瞄触发键3
 	int auto_model = 0;							//! 扳机方式
 	int auto_key = 0;							//! 扳机按键 key
-	int auto_ke2 = 0;							//! 扳机按键 key2
-	int auto_ke3 = 0;							//! 扳机按键 key3
+	int auto_key2 = 0;							//! 扳机按键 key2
+	int auto_key3 = 0;							//! 扳机按键 key3
 	float auto_trigger_x_scale = 0.5;			//! 自动扳机左右触发范围比例
 	float auto_trigger_up_scale = 0.5;			//! 自动扳机上部触发范围比例
 	float auto_trigger_down_scale = 0.5;		//! 自动扳机下部触发范围比例
+
+	float kp_x = 0.3;
+	float ki_x = 0.1;
+	float kd_x = 0.1;
+	float kp_y = 0.3;
+	float ki_y = 0.1;
+	float kd_y = 0.1;
+
+	int delay_base = 150;
+	int delay_delay = 60;
+
 };
 
 //! 跨进程配置信息，配置性

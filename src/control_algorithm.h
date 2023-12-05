@@ -12,13 +12,19 @@
 * [地址]:https://github.com/AMXZzzz/SF_TRT_62.git
 * [日期]: 2023/10/26
 */
-#include "lock_base.h"
-#include "lock_functional.h"
+#pragma once
 
-LOCK* sf::createLock(LockInfo info) {
-	switch (info.manner) {
-	case sf::Type::LockManner::Functional: return new Functional(info);
-	//case sf::Type::LockManner::Multithread: return new Functional(info);
-	}
-    return nullptr;
-}
+class Control {
+public:
+	float PidControl(const float input, const float kp, const float ki, const float kd);
+	float FOVControl(const float input, const float& fov, const int& pixel, const int& worh, const int& degree);
+	float MaxMovePixel(const float input, const int max);
+private:
+	float deviation = 0;		// 偏差量
+	float last_deviation = 0;		// 上一次的偏差量
+	float target_amount = 0;	// 目标量，恒定为0
+	float P = 0;
+	float I = 0;
+	float D = 0;
+	float pi = 3.14159265358979323846;
+};

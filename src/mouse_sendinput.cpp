@@ -26,9 +26,11 @@ IStates ISendInput::init() {
 IStates ISendInput::move(int x, int y) {
     input.mi.dx = x;
     input.mi.dy = y;
+ 
     if (SendInput(1, &input, sizeof(input)) == 0) {
         return IStates(false, "SendInput Ö´ÐÐÊ§°Ü");
     }
+    return IStates();   //! ±ØÐëreturn
 }
 
 void ISendInput::trigger() {

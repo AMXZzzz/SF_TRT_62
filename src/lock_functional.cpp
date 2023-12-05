@@ -14,6 +14,19 @@
 */
 #include "lock_functional.h"
 
+typedef std::chrono::system_clock::time_point TimePoint;
+static TimePoint auto_start = std::chrono::system_clock::now();
+static TimePoint sleep_start = std::chrono::system_clock::now();
+
+static bool coolDownTime(TimePoint start, int interval, int random) {
+	//! 随机
+	int random_time = 0;
+	if (random != 0) {
+		random_time = (int)random * rand() / (RAND_MAX + 1);
+	}
+	//! 在CD
+	return std::chrono::duration_cast <std::chrono::milliseconds> (std::chrono::system_clock::now() - start).count() >= (interval + random_time) * 1.0;
+}
 
 static inline bool inScopeX(TargetInfo* target,const float scale_x) {
 	//! 计算 x 比例
@@ -47,27 +60,7 @@ static inline bool inScopeY(TargetInfo* target,const float scale_up,const float 
 	return true;
 }
 
-IStates Functional::initLock() {
-
-	//! 创建mousec对象
-	m_mouse = sf::createMouse(&m_mouse_info);
-	if (m_mouse == nullptr) {
-		std::cout << "[debug]: 创建Mouse对象失败" << std::endl;
-		return IStates(false, "创建Mouse对象失败");
-	}
-	//! mousec初始化
-	IStates hr = m_mouse->init();
-	if (hr.is_error()) {
-		std::cout << "[debug]: Mouse对象init失败" << std::endl;
-		return hr;
-	}
-
-	//! 初始化其他
-
-	return IStates();
-}
-
-void getDistance(cv::Rect& box, IPoint* m_point, std::vector<float>* distance) {
+static void getDistance(cv::Rect& box, IPoint* m_point, std::vector<float>* distance) {
 #if CENTER_COORDINATE		//! box使用中心点坐标
 	//! 转为屏幕坐标  截图位置原点 + 目标图片中心点 = 图片坐标
 	float screen_x = m_point.origin_x + box.x;
@@ -90,14 +83,14 @@ void getDistance(cv::Rect& box, IPoint* m_point, std::vector<float>* distance) {
 	distance->push_back(pow(distance_x, 2) + pow(distance_y, 2));	//! 三家函数，x,y的平方和为斜边的平方
 }
 
-int getDistanceIdx(std::vector<float>* distance,
+static int getDistanceIdx(std::vector<float>* distance,
 	std::vector<int>* new_indices,
 	std::vector<int>* indices,
 	bool category_filter) {
 
 	int idx = 0;
 	//! 开启了类别筛选
-	if (category_filter) {				
+	if (category_filter) {
 		if (new_indices->empty()) {		//! 筛选后，不存在符合条件的
 			return -1;					//! 返回-1
 		}
@@ -113,6 +106,26 @@ int getDistanceIdx(std::vector<float>* distance,
 	return (*indices)[std::distance(std::begin(*distance), std::min_element(std::begin(*distance), std::end(*distance)))];
 }
 
+IStates Functional::initLock() {
+
+	//! 创建mousec对象
+	m_mouse = sf::createMouse(&m_mouse_info);
+	if (m_mouse == nullptr) {
+		std::cout << "[debug]: 创建Mouse对象失败" << std::endl;
+		return IStates(false, "创建Mouse对象失败");
+	}
+	//! mousec初始化
+	IStates hr = m_mouse->init();
+	if (hr.is_error()) {
+		std::cout << "[debug]: Mouse对象init失败" << std::endl;
+		return hr;
+	}
+
+	//! 初始化其他
+
+	return IStates();
+}
+
 void Functional::categoryFilter(std::vector<float>* distance,
 	std::vector<int>* indices,
 	int idx) {
@@ -122,57 +135,58 @@ void Functional::categoryFilter(std::vector<float>* distance,
 	getDistance(m_process->boxes[idx], m_point, distance);
 }
 
-void Functional::autoTrigger(TargetInfo* target) {
+void Functional::executeTrigger(TargetInfo* target) {
+	//! 执行扳机
+	if (inScopeX(target, m_sharedmemory->s_data.auto_trigger_x_scale) &&
+		inScopeY(target, m_sharedmemory->s_data.auto_trigger_up_scale, m_sharedmemory->s_data.auto_trigger_down_scale) &&
+		coolDownTime(auto_start, m_sharedmemory->s_data.delay_base, m_sharedmemory->s_data.delay_delay)) {	//! 冷却
+		//! 监听扳机按键
+		if (m_mouse->monitor(m_sharedmemory->s_data.auto_key)) {
+			m_mouse->trigger();
+		}
+		auto_start = std::chrono::system_clock::now();  	//! 更新下一个CD
+	}
+}
 
-	//! 监听自瞄按键按下就退出
-	bool aim_key_state = false;
-	if (!m_mouse->monitor(m_sharedmemory->s_data.aim_key)) {return;}
+void Functional::autoTrigger(TargetInfo* target) {
 
 	//! 扳机方式
 	switch (m_sharedmemory->s_data.auto_model) {
-
 #pragma region 移动扳机
 	case 0:
-		//! 移动
-		m_mouse->move(static_cast<int>(target->move_x), static_cast<int>(target->move_y));
-		//! 如果在范围内，执行扳机
-		if (inScopeX(target, m_sharedmemory->s_data.auto_trigger_x_scale) && 
-			inScopeY(target, m_sharedmemory->s_data.auto_trigger_up_scale, m_sharedmemory->s_data.auto_trigger_down_scale)&&
-			true) {	//! 冷却占位
-			if (m_mouse->monitor(m_sharedmemory->s_data.auto_key)) {
-				m_mouse->trigger();
-			}
-
+		if (m_mouse->monitor(m_sharedmemory->s_data.aim_key)) {
+			//! 移动
+			m_mouse->move(static_cast<int>(target->move_x), static_cast<int>(target->move_y));
+			//! 如果在范围内，执行扳机
+			executeTrigger(target);
 		}
 		break;
 #pragma endregion comment
 #pragma region 架点扳机
 	case 1:
 		//! 如果在范围内，执行扳机
-		if (inScopeX(target, m_sharedmemory->s_data.auto_trigger_x_scale) &&
-			inScopeY(target, m_sharedmemory->s_data.auto_trigger_up_scale, m_sharedmemory->s_data.auto_trigger_down_scale) &&
-			true) {	//! 冷却占位
-			if (m_mouse->monitor(m_sharedmemory->s_data.auto_key)) {
-				m_mouse->trigger();
-			}
-		}
+		executeTrigger(target);
 		break;
 #pragma endregion comment
 #pragma region 延迟扳机
 	case 2:
-		//! 如果在范围内，执行扳机
-		if (inScopeX(target, m_sharedmemory->s_data.auto_trigger_x_scale) &&
-			inScopeY(target, m_sharedmemory->s_data.auto_trigger_up_scale, m_sharedmemory->s_data.auto_trigger_down_scale) &&
-			true) {	//! 冷却占位
-			if (m_mouse->monitor(m_sharedmemory->s_data.auto_key)) {
-				m_mouse->trigger();
+		if (m_mouse->monitor(m_sharedmemory->s_data.aim_key)) {
+			m_mouse->move(static_cast<int>(target->move_x), static_cast<int>(target->move_y));
+			//! 在CD内
+			if (coolDownTime(sleep_start, m_sharedmemory->s_data.delay_base, m_sharedmemory->s_data.delay_delay)) {
+				//! 如果在范围内，执行扳机
+				if (inScopeX(target, m_sharedmemory->s_data.auto_trigger_x_scale) &&
+					inScopeY(target, m_sharedmemory->s_data.auto_trigger_up_scale, m_sharedmemory->s_data.auto_trigger_down_scale)) {	//! 冷却
+					if (m_mouse->monitor(m_sharedmemory->s_data.auto_key)) {
+						m_mouse->trigger();
+					}
+					sleep_start = std::chrono::system_clock::now();		//! 更新下一个延迟CD
+				}
 			}
 		}
 		break;
 #pragma endregion comment
 	}
-
-
 }
 
 void Functional::onlyMcove(TargetInfo* target) {
@@ -181,13 +195,21 @@ void Functional::onlyMcove(TargetInfo* target) {
 	}
 	else {
 		if (m_mouse->monitor(m_sharedmemory->s_data.aim_key)) {
-
 			m_mouse->move(static_cast<int>(target->move_x), static_cast<int>(target->move_y));
 		}
 	}
 }
 
 void Functional::action() {
+	//! 更新时间点
+	if (!m_mouse->monitor(m_sharedmemory->s_data.aim_key)) {
+		sleep_start = std::chrono::system_clock::now();
+	}
+
+	//! 跳过空
+	if (m_process->indices.size() == 0) {
+		return;
+	}
 
 	std::vector<float> distance;			//! 欧式距离
 	std::vector<int> new_indices;			//! 新索引表
@@ -226,7 +248,7 @@ void Functional::action() {
 	//! 获取最近的目标
 	int idx = getDistanceIdx(&distance, &new_indices, &(m_process->indices), m_sharedmemory->s_signal.category_filter);
 	if (idx == -1) {return;}		//! -1 = 没有符合的目标
-
+	
 	//! 获取最近目标的信息
 	TargetInfo target{};
 	target.width = m_process->boxes[idx].width;
@@ -248,20 +270,19 @@ void Functional::action() {
 
 	//! 偏移位置
 	if (m_sharedmemory->s_data.aim_position) {
-		target.center_y = (target.origin_x + target.height) - (target.height * m_sharedmemory->s_data.aim_position);
+		target.center_y = (target.origin_y + target.height) - (target.height * m_sharedmemory->s_data.aim_position);
 	}
 
 	//! 相对距离
 	target.distance_x = (m_point->origin_x + target.center_x) - m_point->center_x;
-	target.distance_x = (m_point->origin_y + target.center_y) - m_point->center_y;
+	target.distance_y = (m_point->origin_y + target.center_y) - m_point->center_y;
 
 	//! 范围跳过
-	if (abs(target.distance_x) > m_sharedmemory->s_data.aim_range * 0.5 || abs(target.distance_x) > m_sharedmemory->s_data.aim_range * 0.5) return;
+	if (abs(target.distance_x) > m_sharedmemory->s_data.aim_range * 0.5 || abs(target.distance_y) > m_sharedmemory->s_data.aim_range * 0.5) return;
 
 	//! 控制计算(使用对象，函数式（低配机器），多线程（高配机器）)
-
-	target.move_x = target.distance_x;
-	target.move_y = target.distance_y;
+	target.move_x = control_x.PidControl(target.distance_x, m_sharedmemory->s_data.kp_x, m_sharedmemory->s_data.ki_x, m_sharedmemory->s_data.kd_x);
+	target.move_y = control_y.PidControl(target.distance_y, m_sharedmemory->s_data.kp_y, m_sharedmemory->s_data.ki_y, m_sharedmemory->s_data.kd_y);
 
 	//! 扳机移动 or 单移动
 	(m_sharedmemory->s_signal.auto_trigger == true) ? autoTrigger(&target) : onlyMcove(&target);
