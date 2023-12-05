@@ -17,10 +17,10 @@
 #include <opencv2/core/types.hpp>
 
 struct IPoint {
-	int origin_x = 0;	//! 原点x
-	int origin_y = 0;	//! 原点y
-	int center_x = 0;	//! 中心点x
-	int center_y = 0;	//! 中心点y
+	int origin_x = 0;	//! 截图原点x
+	int origin_y = 0;	//! 截图原点y
+	int center_x = 0;	//! 屏幕中心点x
+	int center_y = 0;	//! 屏幕中心点y
 	int CapWidth = 0;	//! 截图范围-宽
 	int CapHeight = 0;	//! 截图范围-高
 	int WinWidth = 0;	//! 屏幕宽

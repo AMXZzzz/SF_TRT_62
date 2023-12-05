@@ -43,16 +43,34 @@ void test() {
 
 	//! 共享内存创建时，值是不定值，如signal->ai_start_signal 可能是false,也可能是true
 	//! 固定值，尝试：ui端已经初始化共享内存，则跳过初始化
-	sharedmemory->s_signal.dll_exit_signal = false;								//! dll 退出信号
 	sharedmemory->s_signal.ai_start_signal = true;								//! 执行器开始信号
+	sharedmemory->s_signal.auto_trigger = true;								//! 自动扳机
+	sharedmemory->s_signal.category_filter = false;								//! 类别筛选
+	sharedmemory->s_signal.dll_exit_signal = false;								//! dll 退出信号
+	sharedmemory->s_signal.first_class = false;									//! 第一类别
+	sharedmemory->s_signal.second_class = false;								//! 第二类别
+	sharedmemory->s_signal.third_class = false;									//! 第三类别
+	sharedmemory->s_signal.fourth_class = false;								//! 第四类别
+	sharedmemory->s_signal.keep_move = false;									//! 持续移动
 	sharedmemory->s_signal.show_detect_window = true;							//! 显示检测窗口信号
-	sharedmemory->s_info.mousec_type = 2;										//! 使用sendinput
+
+	sharedmemory->s_info.yolo_tyoe = 0;											//! yolo类型
 	sharedmemory->s_info.frame_type = 0;										//! 推理框架
-	sharedmemory->s_info.yolo_tyoe =  0;										//! yolo类型
-	sharedmemory->s_data.conf =  0.3;											//! 置信度
-	sharedmemory->s_data.iou =  0.1;											//! iou置信度
+	sharedmemory->s_info.equipment = 0;											//! 设备
+	sharedmemory->s_info.lock_type = 0;											//! 自瞄对象方式
+	sharedmemory->s_info.mousec_type = 2;										//! 使用sendinput
 	sharedmemory->s_info.model_path = "ckbq_yolov5n_2w5.engine";				//! 模型路径
 	sharedmemory->s_info.logger_path = "";										//! 日志存放路径
+
+	sharedmemory->s_data.conf =  0.3;											//! 置信度
+	sharedmemory->s_data.iou =  0.1;											//! iou置信度
+	sharedmemory->s_data.aim_position =  0.7;									//! 瞄准位置
+	sharedmemory->s_data.aim_range =  640;										//! 瞄准范围
+	sharedmemory->s_data.auto_trigger_x_scale =  0.5;							//! x轴范围			
+	sharedmemory->s_data.auto_trigger_up_scale =  0.5;							//! y 轴五上部
+	sharedmemory->s_data.auto_trigger_down_scale =  0.5;						//! y 轴下部
+	sharedmemory->s_data.aim_key =  0x01;										//! 监听扳机
+
 
 	//! 监听循环
 	while (sharedmemory->s_signal.dll_exit_signal == false) {

@@ -26,25 +26,30 @@ namespace sf {
 	}
 }
 
-struct IRect {		//! 最近目标信息
-	float origin_x;	
-	float origin_y;
-	float width;
-	float height;
-	float center_x;
-	float center_y;
+struct TargetInfo {		//! 最近目标信息
+	float origin_x;		//! 目标box原点x
+	float origin_y;		//! 目标box原点y
+	float width;		//! 目标box宽
+	float height;		//! 目标box高
+	float center_x;		//! 目标box中心点x
+	float center_y;		//! 目标box中心点x
+	float distance_x;	//! 目标相对距离x,原始距离
+	float distance_y;	//! 目标相对距离y，原始距离
+	float move_x;		//! 目标x需要移动的距离，计算距离
+	float move_y;		//! 目标x需要移动的距离，计算距离
 };
 
 struct LockInfo {
 	sf::Type::LockManner manner;	//! 自瞄的方式
 	MouseInfo mouse_info;			//! 鼠标执行方式
-	Process* process;
-	SharedMemory* sharedmemory;
+	Process* process;				//! 处理结构体
+	SharedMemory* sharedmemory;		//! 共享内存指针
+	IPoint* point;
 };
 
 class  LOCK {
 public:
-	LOCK(LockInfo info): m_mouse_info(info.mouse_info), m_process(info.process), m_sharedmemory(info.sharedmemory){
+	LOCK(LockInfo info): m_point(info.point),m_mouse_info(info.mouse_info), m_process(info.process), m_sharedmemory(info.sharedmemory){
 		std::cout << "[debug]: LOCK基类构造" << std::endl;
 		if (m_process == nullptr) {std::cout << "[debug]: 传入LOCK的process指针为空" << std::endl;}
 		if (m_sharedmemory == nullptr) {std::cout << "[debug]: 传入LOCK的sharedmemory指针为空" << std::endl;}
@@ -60,7 +65,7 @@ public:
 		std::cout << "[debug]: LOCK基类释放" << std::endl;
 	};
 protected:
-	IPoint m_point;
+	IPoint* m_point;
 	IMouse* m_mouse;				//! 鼠标对象
 	Process* m_process;				//! 先验框
 	MouseInfo m_mouse_info{};		//! 鼠标配置

@@ -180,9 +180,11 @@ bool Actuator::setLockLogicObject() {
 	//! 配置自瞄信息
 	LockInfo lock_info{};
 	lock_info.manner = convertLockType(m_sharedmemory->s_info.lock_type);
+	lock_info.point = &m_point;
 	lock_info.process = &m_process;
 	lock_info.mouse_info = mouse_info;
 	lock_info.sharedmemory = m_sharedmemory;
+
 
 	//! 初始化lock对象
 	m_lock = sf::createLock(lock_info);

@@ -25,6 +25,7 @@ public:
 	}
 	//! 初始化lock 
 	IStates initLock() override;
+
 	//! 开始动作
 	void action() override;
 	//! 释放
@@ -32,6 +33,10 @@ public:
 private:
 	//! 计算和准星的距离
 	void categoryFilter(std::vector<float>* distance, std::vector<int>* indices, int idx);
+	//! 自动扳机
+	void autoTrigger(TargetInfo* target);
+	//! 单移动
+	void onlyMcove(TargetInfo* target);
 	~Functional(){std::cout << "[debug]: Functional 派生类析构" << std::endl;}
 };
 

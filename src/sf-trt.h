@@ -20,6 +20,16 @@ struct Data {
 	float iou = 0.1;							//! iou置信度指针
 	float aim_position = 0.7;					//! 瞄准位置
 	int aim_range = 200;						//! 自瞄范围,以屏幕中间为中心的 aim_range * aim_range正方形
+	int aim_key = 0x01;							//! 自瞄触发键
+	int aim_key2 = 0x01;						//! 自瞄触发键2
+	int aim_key3 = 0x02;						//! 自瞄触发键3
+	int auto_model = 0;							//! 扳机方式
+	int auto_key = 0;							//! 扳机按键 key
+	int auto_ke2 = 0;							//! 扳机按键 key2
+	int auto_ke3 = 0;							//! 扳机按键 key3
+	float auto_trigger_x_scale = 0.5;			//! 自动扳机左右触发范围比例
+	float auto_trigger_up_scale = 0.5;			//! 自动扳机上部触发范围比例
+	float auto_trigger_down_scale = 0.5;		//! 自动扳机下部触发范围比例
 };
 
 //! 跨进程配置信息，配置性
@@ -34,7 +44,7 @@ struct Info {
 
 };
 
-//! 跨进程信号
+//! 跨进程信号，实时性
 struct Signal {
 	bool dll_exit_signal = false;			//! 当置为true时，整个dll退出信号
 	bool ai_start_signal = false;			//! 当为true时，启动ai线程
@@ -44,6 +54,8 @@ struct Signal {
 	bool second_class = false;				//! 第二个类别
 	bool third_class = false;				//! 第三个类别
 	bool fourth_class = false;				//! 第四个类别
+	bool auto_trigger = false;				//! 自动扳机开关
+	bool keep_move = false;					//! 持续自瞄
 };
 
 struct SharedMemory {

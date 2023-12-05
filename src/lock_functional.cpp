@@ -15,6 +15,38 @@
 #include "lock_functional.h"
 
 
+static inline bool inScopeX(TargetInfo* target,const float scale_x) {
+	//! 计算 x 比例
+	return ((target->width * 0.5) * scale_x) > abs(target->distance_x);
+}
+
+static inline bool inScopeY(TargetInfo* target,const float scale_up,const float scale_down) {
+	//! 如果准星在目标中心点的上面
+	if (target->distance_y > 0) {
+		//! 瞄准位置 - 顶层位置 = 上部实际高(框的顶部);  上部实际高 * 触发比例 = 上部触发高
+		//! 例: 目标原点y的坐标 = 230，目标框的高度h = 100, 则目标中心点y = 280， 比例为1.0
+		//! 解: 280 - 230 = 1.0 = 50  
+		float up = (target->center_y - target->origin_y) * scale_up;
+		//! up 是刚刚计算的上部触发高度，为正数 50
+		//! 如果 上部触发高度 > 相对距离，表明准星在上部框内且在设定的比例范围内
+		return (target->distance_y < up) ? true : false;		//! 直接退出，已经知道结果，不需要计算后面的
+	}
+
+	//! 准星不在上部就计算下部，准星在目标中心点的下面
+	if (target->distance_y < 0) {
+		//! 瞄准位置 - 底部位置 = 下部实际高(框的底部); 下部实际高 * 触发比例 = 下部触发高  
+		//! 例: 目标原点y的坐标 = 230，目标框的高度h = 100, 则目标中心点y = 280， 比例为1.0
+		//! 解: 280 - (230 + 100) * 1.0 = - 50		PS: 底部位置 = 原点y + 框高
+		float down = (target->center_y - (target->origin_y + target->height)) * scale_down;
+		//! 此时 down 是负数,-50像素，target->distance_y 也是负数，如-80像素
+		//! 如果 下部触发高(down) < target->distance_y，表明在准星在下部框内且在设定的比例范围内,  PS: 负数比较 -50 > -80
+		return  (down < target->distance_y) ? true : false;
+	}
+
+	//! 不在上部，也不再下部，即准星正中目标中心点  target->distance_y == 0
+	return true;
+}
+
 IStates Functional::initLock() {
 
 	//! 创建mousec对象
@@ -31,10 +63,11 @@ IStates Functional::initLock() {
 	}
 
 	//! 初始化其他
+
 	return IStates();
 }
 
-void getDistance(cv::Rect& box, IPoint& m_point, std::vector<float>* distance) {
+void getDistance(cv::Rect& box, IPoint* m_point, std::vector<float>* distance) {
 #if CENTER_COORDINATE		//! box使用中心点坐标
 	//! 转为屏幕坐标  截图位置原点 + 目标图片中心点 = 图片坐标
 	float screen_x = m_point.origin_x + box.x;
@@ -45,13 +78,13 @@ void getDistance(cv::Rect& box, IPoint& m_point, std::vector<float>* distance) {
 	float center_y = box.y + (box.height * 0.5);	//! 将图box的y原点坐标转为中心点坐标
 #endif
 	//! 转为屏幕坐标  截图位置原点 + 目标图片中心点 = 图片坐标
-	float screen_x = m_point.origin_x + center_x;
-	float screen_y = m_point.origin_y + center_y;
+	float screen_x = m_point->origin_x + center_x;
+	float screen_y = m_point->origin_y + center_y;
 
 	//! 尝试复用相对距离，减少计算(对比赋值和计算的延迟和消耗)
 	//! 目标相对准星的距离   目标屏幕坐标 - 屏幕中心点 = 相对距离（斜边）
-	float distance_x = screen_x - m_point.center_x;
-	float distance_y = screen_y - m_point.center_y;
+	float distance_x = screen_x - m_point->center_x;
+	float distance_y = screen_y - m_point->center_y;
 
 	//! 获取所有目标的相对距离的绝对值，最小的值就是最近的目标
 	distance->push_back(pow(distance_x, 2) + pow(distance_y, 2));	//! 三家函数，x,y的平方和为斜边的平方
@@ -82,18 +115,82 @@ int getDistanceIdx(std::vector<float>* distance,
 
 void Functional::categoryFilter(std::vector<float>* distance,
 	std::vector<int>* indices,
-	int idx
-) {
+	int idx) {
 	//! 从开新的索引表
 	indices->push_back(m_process->indices[idx]);
 	//! 获取该目标的欧式距离		
 	getDistance(m_process->boxes[idx], m_point, distance);
 }
 
+void Functional::autoTrigger(TargetInfo* target) {
+
+	//! 监听自瞄按键按下就退出
+	bool aim_key_state = false;
+	if (!m_mouse->monitor(m_sharedmemory->s_data.aim_key)) {return;}
+
+	//! 扳机方式
+	switch (m_sharedmemory->s_data.auto_model) {
+
+#pragma region 移动扳机
+	case 0:
+		//! 移动
+		m_mouse->move(static_cast<int>(target->move_x), static_cast<int>(target->move_y));
+		//! 如果在范围内，执行扳机
+		if (inScopeX(target, m_sharedmemory->s_data.auto_trigger_x_scale) && 
+			inScopeY(target, m_sharedmemory->s_data.auto_trigger_up_scale, m_sharedmemory->s_data.auto_trigger_down_scale)&&
+			true) {	//! 冷却占位
+			if (m_mouse->monitor(m_sharedmemory->s_data.auto_key)) {
+				m_mouse->trigger();
+			}
+
+		}
+		break;
+#pragma endregion comment
+#pragma region 架点扳机
+	case 1:
+		//! 如果在范围内，执行扳机
+		if (inScopeX(target, m_sharedmemory->s_data.auto_trigger_x_scale) &&
+			inScopeY(target, m_sharedmemory->s_data.auto_trigger_up_scale, m_sharedmemory->s_data.auto_trigger_down_scale) &&
+			true) {	//! 冷却占位
+			if (m_mouse->monitor(m_sharedmemory->s_data.auto_key)) {
+				m_mouse->trigger();
+			}
+		}
+		break;
+#pragma endregion comment
+#pragma region 延迟扳机
+	case 2:
+		//! 如果在范围内，执行扳机
+		if (inScopeX(target, m_sharedmemory->s_data.auto_trigger_x_scale) &&
+			inScopeY(target, m_sharedmemory->s_data.auto_trigger_up_scale, m_sharedmemory->s_data.auto_trigger_down_scale) &&
+			true) {	//! 冷却占位
+			if (m_mouse->monitor(m_sharedmemory->s_data.auto_key)) {
+				m_mouse->trigger();
+			}
+		}
+		break;
+#pragma endregion comment
+	}
+
+
+}
+
+void Functional::onlyMcove(TargetInfo* target) {
+	if (m_sharedmemory->s_signal.keep_move == true) {
+		m_mouse->move(static_cast<int>(target->move_x), static_cast<int>(target->move_y));
+	}
+	else {
+		if (m_mouse->monitor(m_sharedmemory->s_data.aim_key)) {
+
+			m_mouse->move(static_cast<int>(target->move_x), static_cast<int>(target->move_y));
+		}
+	}
+}
+
 void Functional::action() {
 
 	std::vector<float> distance;			//! 欧式距离
-	std::vector<int> new_indices;			//! 新建索引表
+	std::vector<int> new_indices;			//! 新索引表
 
 	//! 移动逻辑
 	for (size_t i = 0; i < m_process->indices.size(); ++i) {
@@ -128,10 +225,10 @@ void Functional::action() {
 
 	//! 获取最近的目标
 	int idx = getDistanceIdx(&distance, &new_indices, &(m_process->indices), m_sharedmemory->s_signal.category_filter);
-	if (idx == -1) {return;}
+	if (idx == -1) {return;}		//! -1 = 没有符合的目标
 
 	//! 获取最近目标的信息
-	IRect target{};
+	TargetInfo target{};
 	target.width = m_process->boxes[idx].width;
 	target.height = m_process->boxes[idx].height;
 
@@ -155,22 +252,22 @@ void Functional::action() {
 	}
 
 	//! 相对距离
-	float x = (m_point.origin_x + target.center_x) - m_point.center_x;
-	float y = (m_point.origin_y + target.center_y) - m_point.center_y;
+	target.distance_x = (m_point->origin_x + target.center_x) - m_point->center_x;
+	target.distance_x = (m_point->origin_y + target.center_y) - m_point->center_y;
 
 	//! 范围跳过
-	if (abs(x) > m_sharedmemory->s_data.aim_range * 0.5 || abs(y) > m_sharedmemory->s_data.aim_range * 0.5) return;
+	if (abs(target.distance_x) > m_sharedmemory->s_data.aim_range * 0.5 || abs(target.distance_x) > m_sharedmemory->s_data.aim_range * 0.5) return;
 
-	//! 控制计算(使用对象，一个函数式（低配机器），一个多线程（高配机器）)
+	//! 控制计算(使用对象，函数式（低配机器），多线程（高配机器）)
 
-	//! 进入or跳过扳机
+	target.move_x = target.distance_x;
+	target.move_y = target.distance_y;
 
-	//! 若不进入扳机，则进行单移动
-
-	m_mouse->move(1, 1);
+	//! 扳机移动 or 单移动
+	(m_sharedmemory->s_signal.auto_trigger == true) ? autoTrigger(&target) : onlyMcove(&target);
 
 	//! 笔记
-	//! 范围判存在bug，放弃使用相对距离进行判断，使用排名中心做计算
+	//! 范围判存在bug，放弃使用相对距离进行判断，使用屏幕中心做计算
 }
 
 void Functional::Release() {
