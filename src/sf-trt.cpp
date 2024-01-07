@@ -41,8 +41,10 @@ void test() {
 	//! 创建执行器
 	Actuator ac(sharedmemory);
 
+#if 1 
+	//! 共享内存测试: 
 	//! 共享内存创建时，值是不定值，如signal->ai_start_signal 可能是false,也可能是true
-	//! 固定值，尝试：ui端已经初始化共享内存，则跳过初始化
+	//! 需要给定初始值，尝试：ui端已经初始化共享内存，则跳过初始化
 	sharedmemory->s_info.yolo_tyoe = 0;											//! yolo类型
 	sharedmemory->s_info.frame_type = 1;										//! 推理框架
 	sharedmemory->s_info.equipment = 0;											//! 设备
@@ -85,6 +87,8 @@ void test() {
 
 	sharedmemory->s_data.delay_base = 250;
 	sharedmemory->s_data.delay_delay = 60;
+#endif
+
 
 	//! 监听循环
 	while (sharedmemory->s_signal.dll_exit_signal == false) {

@@ -288,7 +288,12 @@ void Functional::action() {
 	(m_sharedmemory->s_signal.auto_trigger == true) ? autoTrigger(&target) : onlyMcove(&target);
 
 	//! 笔记
-	//! 范围判存在bug，放弃使用相对距离进行判断，使用屏幕中心做计算
+	//! - 考虑增加控制类，以便扩展其他控制算法
+	//! - 范围判定存在bug，放弃使用相对距离进行判断，使用屏幕中心做计算
+	//! - 考虑移除fov算法，该算法实用价值不高
+	//! - 尝试使用头文件分布声明共享内存
+	//! - 考虑优化yolo基类，以便增加非yolo系的框架（如预处理的归一化，模型的检查(增加States状态)，后处理）
+	//! - 考虑增加推理扩展模块（类obs的插件注册），防止依赖臃肿
 }
 
 void Functional::Release() {
