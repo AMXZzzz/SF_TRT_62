@@ -13,34 +13,33 @@
 * [日期]: 2023/10/26
 */
 #pragma once
-#include "lock_base.h"
-#include "IState.h"
-#include "yolo_base.h"
+
 #include "control_base.h"
 
-class Functional: public LOCK {
-public:
-	Functional(LockInfo info):LOCK(info){
-		std::cout << "[debug]: Sync 派生类构造" << std::endl;
-	}
-	//! 初始化lock 
-	IStates initLock() override;
-
-	//! 开始动作
-	void action() override;
-	//! 释放
-	void Release() override;
-private:
-	Control* control;
-
-	//! 计算和准星的距离
-	void categoryFilter(std::vector<float>* distance, std::vector<int>* indices, int idx);
-	//! 执行扳机
-	void executeTrigger(TargetInfo* target);
-	//! 自动扳机
-	void autoTrigger(TargetInfo* target);
-	//! 单移动
-	void onlyMcove(TargetInfo* target);
-	~Functional(){std::cout << "[debug]: Sync 派生类析构" << std::endl;}
+struct PIDInfo {
+	float deviation = 0;		// 偏差量
+	float last_deviation = 0;		// 上一次的偏差量
+	float target_amount = 0;	// 目标量，恒定为0
+	float P = 0;
+	float I = 0;
+	float D = 0;
 };
 
+class PID: public Control {
+
+public:
+
+	// 通过 Control 继承
+	IStates init() override;
+
+	float control_x(const float input, Data data) override;
+
+	float control_y(const float input, Data data) override;
+
+	bool Release() override;
+
+private:
+	PIDInfo pid_x;
+	PIDInfo pid_y;
+	float pi = 3.14159265358979323846;
+};

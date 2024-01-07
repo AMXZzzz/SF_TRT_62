@@ -50,6 +50,7 @@ void test() {
 	sharedmemory->s_info.equipment = 0;											//! 设备
 	sharedmemory->s_info.lock_type = 0;											//! 自瞄对象方式
 	sharedmemory->s_info.mousec_type = 2;										//! 使用sendinput
+	sharedmemory->s_info.control_model = 0;										//! 使用的控制算法
 	sharedmemory->s_info.model_path = "cf_yolov5s_15w_640_2label.onnx";			//! 模型路径
 	sharedmemory->s_info.logger_path = "";										//! 日志存放路径
 
@@ -61,34 +62,33 @@ void test() {
 	sharedmemory->s_signal.second_class = false;								//! 第二类别
 	sharedmemory->s_signal.third_class = false;									//! 第三类别
 	sharedmemory->s_signal.fourth_class = false;								//! 第四类别
-	sharedmemory->s_signal.auto_trigger = true;									//! 自动扳机
+	sharedmemory->s_signal.auto_trigger = false;									//! 自动扳机
 	sharedmemory->s_signal.keep_move = false;									//! 持续移动
-		
-	sharedmemory->s_data.conf =  0.4;											//! 置信度
-	sharedmemory->s_data.iou =  0.1;											//! iou置信度
-	sharedmemory->s_data.aim_position =  0.7;									//! 瞄准位置
-	sharedmemory->s_data.aim_range =  640;										//! 瞄准范围
-	sharedmemory->s_data.aim_key = 0x02;										//! 监听自瞄按键2
-	sharedmemory->s_data.aim_key2 = 0x02;										//! 监听自瞄按键3
-	sharedmemory->s_data.auto_model = 2;										//! 扳机模式
-	sharedmemory->s_data.auto_key = 0x02;										//! 监听自瞄按键
-	sharedmemory->s_data.auto_key2 = 0x02;										//! 监听自瞄按键2
-	sharedmemory->s_data.auto_key3 = 0x02;										//! 监听自瞄按键3
-	sharedmemory->s_data.auto_trigger_x_scale =  1.0;							//! x轴范围			
-	sharedmemory->s_data.auto_trigger_up_scale =  1.0;							//! y 轴上部
-	sharedmemory->s_data.auto_trigger_down_scale =  1.0;						//! y 轴下部		
 
+	sharedmemory->s_data.conf = 0.3;							//! 置信度指针
+	sharedmemory->s_data.iou = 0.1;								//! iou置信度指针
+	sharedmemory->s_data.aim_position = 0.7;					//! 瞄准位置
+	sharedmemory->s_data.aim_range = 640;						//! 自瞄范围,以屏幕中间为中心的 aim_range * aim_range正方形
+	sharedmemory->s_data.aim_key = 0x02;						//! 自瞄触发键
+	sharedmemory->s_data.aim_key2 = 0x02;						//! 自瞄触发键2
+	sharedmemory->s_data.aim_key3 = 0x02;						//! 自瞄触发键3
+	sharedmemory->s_data.auto_model = 1;						//! 扳机方式
+	sharedmemory->s_data.auto_key = 0x02;						//! 扳机按键 key
+	sharedmemory->s_data.auto_key2 = 0x02;						//! 扳机按键 key2
+	sharedmemory->s_data.auto_key3 = 0x02;						//! 扳机按键 key3
+	sharedmemory->s_data.auto_trigger_x_scale = 1.0;			//! 自动扳机左右触发范围比例
+	sharedmemory->s_data.auto_trigger_up_scale = 1.0;			//! 自动扳机上部触发范围比例
+	sharedmemory->s_data.auto_trigger_down_scale = 1.0;			//! 自动扳机下部触发范围比例
 	sharedmemory->s_data.kp_x = 0.3;
 	sharedmemory->s_data.ki_x = 0.1;
 	sharedmemory->s_data.kd_x = 0.1;
 	sharedmemory->s_data.kp_y = 0.3;
 	sharedmemory->s_data.ki_y = 0.1;
 	sharedmemory->s_data.kd_y = 0.1;
-
-	sharedmemory->s_data.delay_base = 250;
-	sharedmemory->s_data.delay_delay = 60;
+	sharedmemory->s_data.max_pixel = 15;						//! 最大移动像素
+	sharedmemory->s_data.delay_base = 150;						//! 基础延时
+	sharedmemory->s_data.delay_delay = 60;						//! 随机延时
 #endif
-
 
 	//! 监听循环
 	while (sharedmemory->s_signal.dll_exit_signal == false) {

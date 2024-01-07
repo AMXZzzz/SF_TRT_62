@@ -14,14 +14,15 @@
 */
 #pragma once
 #include "mouse_base.h"
-#include "sf-trt.h"
 #include "base_type.h"
+#include "control_base.h"
+
 
 namespace sf {
 	namespace Type {
 		enum LockManner :int {
-			Functional = 0,
-			Multithread = 1,
+			Sync = 0,
+			Async = 1,
 		};
 	}
 }
@@ -40,16 +41,18 @@ struct TargetInfo {		//! 最近目标信息
 };
 
 struct LockInfo {
-	sf::Type::LockManner manner;	//! 自瞄的方式
+	sf::Type::LockManner lock_manner;	//! 自瞄的方式
+	sf::Type::ControlManner control_manner;
 	MouseInfo mouse_info;			//! 鼠标执行方式
 	Process* process;				//! 处理结构体
 	SharedMemory* sharedmemory;		//! 共享内存指针
-	IPoint* point;
+	IPoint* point;					//! 坐标点指针
 };
 
 class  LOCK {
 public:
-	LOCK(LockInfo info): m_point(info.point),m_mouse_info(info.mouse_info), m_process(info.process), m_sharedmemory(info.sharedmemory){
+	LOCK(LockInfo info): m_point(info.point),m_mouse_info(info.mouse_info), m_process(info.process),
+		m_sharedmemory(info.sharedmemory), m_control_manner(info.control_manner){
 		std::cout << "[debug]: LOCK基类构造" << std::endl;
 		if (m_process == nullptr) {std::cout << "[debug]: 传入LOCK的process指针为空" << std::endl;}
 		if (m_sharedmemory == nullptr) {std::cout << "[debug]: 传入LOCK的sharedmemory指针为空" << std::endl;}
@@ -60,15 +63,15 @@ public:
 	virtual void action() = 0;
 	//! 释放
 	virtual void Release() = 0;
-	virtual ~LOCK() { 
-		m_mouse->close();
-		std::cout << "[debug]: LOCK基类释放" << std::endl;
-	};
+	//! 虚基类习析构
+	virtual ~LOCK();
 protected:
-	IPoint* m_point;
+	sf::Type::ControlManner m_control_manner;
+	IPoint* m_point;				//! 坐标点
 	IMouse* m_mouse;				//! 鼠标对象
 	Process* m_process;				//! 先验框
 	MouseInfo m_mouse_info{};		//! 鼠标配置
+
 	SharedMemory* m_sharedmemory;	//! 共享内存，优化单信号
 private:
 	LOCK() {};	//! 禁用默认构造

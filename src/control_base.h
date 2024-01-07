@@ -12,32 +12,40 @@
 * [地址]:https://github.com/AMXZzzz/SF_TRT_62.git
 * [日期]: 2023/10/26
 */
-#include <cmath>
-#include "control_algorithm.h"
+#pragma once
+#include "IState.h"
+#include "sf-trt.h"
 
 
-float Control::PidControl(const float input, float kp, float ki, float kd) {
-	deviation = input - target_amount;
-	P = deviation * kp;
-	I = (I + deviation) * ki;
-	D = (deviation - last_deviation) * kd;
-	//*input = P + I + D;				// 计算的得到的输入，指针修改
-	last_deviation = deviation;
-	return P + I + D;
-}
-
-float Control::FOVControl(const float input, const float& fov, const int& pixel, const int& worh, const int& degree) {
-	float out = (worh * 0.5f) / (tan(fov * pi / 180 * 0.5f));
-	return atan(input / out) * (pixel / (degree * pi / 180));
-}
-
-float Control::MaxMovePixel(const float input, const int max) {
-	if (abs(input) > max) {
-		if (input > 0)
-			return (max);
-		if (input < 0)			// 不能包含0，否者移动值错误
-			return (-max);
+namespace sf {
+	namespace Type {
+		enum ControlManner :int {
+			Incremental = 0,
+			NULLTYPE = 1,
+		};
 	}
-	//! 未命中返回原值
-	return input;
+}
+
+
+class Control {
+public:
+	virtual ~Control() {
+		std::cout << "[debug]: LOCK基类释放" << std::endl;
+	}
+	//! 初始化
+	virtual IStates init() = 0;
+	//! 执行控制
+	virtual float control_x(const float input, Data data) = 0;
+
+	virtual float control_y(const float input, Data data) = 0;
+
+	//! 释放
+	virtual bool Release() = 0;
+
+protected:
+
+};
+
+namespace sf {
+	Control* createControlObj(sf::Type::ControlManner type);
 }

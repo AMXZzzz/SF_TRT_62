@@ -16,9 +16,14 @@
 #include "lock_functional.h"
 
 LOCK* sf::createLock(LockInfo info) {
-	switch (info.manner) {
-	case sf::Type::LockManner::Functional: return new Functional(info);
-	//case sf::Type::LockManner::Multithread: return new Functional(info);
+	switch (info.lock_manner) {
+	case sf::Type::LockManner::Sync: return new Functional(info);
+	case sf::Type::LockManner::Async: return new Functional(info);
 	}
     return nullptr;
+}
+
+LOCK::~LOCK() {
+	m_mouse->close();
+	std::cout << "[debug]: LOCK»ùÀàÊÍ·Å" << std::endl;
 }

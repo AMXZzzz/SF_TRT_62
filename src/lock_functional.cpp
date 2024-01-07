@@ -106,25 +106,17 @@ static int getDistanceIdx(std::vector<float>* distance,
 	return (*indices)[std::distance(std::begin(*distance), std::min_element(std::begin(*distance), std::end(*distance)))];
 }
 
-IStates Functional::initLock() {
-
-	//! 创建mousec对象
-	m_mouse = sf::createMouse(&m_mouse_info);
-	if (m_mouse == nullptr) {
-		std::cout << "[debug]: 创建Mouse对象失败" << std::endl;
-		return IStates(false, "创建Mouse对象失败");
+float MaxMovePixel(const float input, const int max) {
+	if (abs(input) > max) {
+		if (input > 0)
+			return (max);
+		if (input < 0)			// 不能包含0，否者移动值错误
+			return (-max);
 	}
-	//! mousec初始化
-	IStates hr = m_mouse->init();
-	if (hr.is_error()) {
-		std::cout << "[debug]: Mouse对象init失败" << std::endl;
-		return hr;
-	}
-
-	//! 初始化其他
-
-	return IStates();
+	//! 未命中返回原值
+	return input;
 }
+
 
 void Functional::categoryFilter(std::vector<float>* distance,
 	std::vector<int>* indices,
@@ -281,8 +273,12 @@ void Functional::action() {
 	if (abs(target.distance_x) > m_sharedmemory->s_data.aim_range * 0.5 || abs(target.distance_y) > m_sharedmemory->s_data.aim_range * 0.5) return;
 
 	//! 控制计算(使用对象，函数式（低配机器），多线程（高配机器）)
-	target.move_x = control_x.PidControl(target.distance_x, m_sharedmemory->s_data.kp_x, m_sharedmemory->s_data.ki_x, m_sharedmemory->s_data.kd_x);
-	target.move_y = control_y.PidControl(target.distance_y, m_sharedmemory->s_data.kp_y, m_sharedmemory->s_data.ki_y, m_sharedmemory->s_data.kd_y);
+	target.move_x = control->control_x(target.distance_x, m_sharedmemory->s_data);
+	target.move_y = control->control_y(target.distance_y, m_sharedmemory->s_data);
+
+	//! 最大移动
+	target.move_x = MaxMovePixel(target.move_x, m_sharedmemory->s_data.max_pixel);
+	target.move_y = MaxMovePixel(target.move_y, m_sharedmemory->s_data.max_pixel);
 
 	//! 扳机移动 or 单移动
 	(m_sharedmemory->s_signal.auto_trigger == true) ? autoTrigger(&target) : onlyMcove(&target);
@@ -296,6 +292,37 @@ void Functional::action() {
 	//! - 考虑增加推理扩展模块（类obs的插件注册），防止依赖臃肿
 }
 
+IStates Functional::initLock() {
+
+	//! 创建mousec对象
+	m_mouse = sf::createMouse(&m_mouse_info);
+	if (m_mouse == nullptr) {
+		std::cout << "[debug]: 创建Mouse对象失败" << std::endl;
+		return IStates(false, "创建Mouse对象失败");
+	}
+	//! mousec初始化
+	IStates hr = m_mouse->init();
+	if (hr.is_error()) {
+		std::cout << "[debug]: Mouse对象init失败" << std::endl;
+		return hr;
+	}
+
+	//! 初始化控制control
+	control = sf::createControlObj(m_control_manner);
+	if (m_mouse == nullptr) {
+		std::cout << "[debug]: 创建control对象失败" << std::endl;
+		return IStates(false, "创建control对象失败");
+	}
+	//! control 初始化
+	hr = control->init();
+	if (hr.is_error()) {
+		std::cout << "[debug]: control对象init失败" << std::endl;
+		return hr;
+	}
+	return IStates();
+}
+
 void Functional::Release() {
+	m_mouse->close();
 	delete this;                //! 等价于调用析构
 }

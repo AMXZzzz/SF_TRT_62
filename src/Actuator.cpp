@@ -76,18 +76,31 @@ static sf::Type::MousecType convertMousecType(int type) {
 	return sf::Type::MousecType::SendInput;
 }
 
+static sf::Type::ControlManner convertControlType(int type) {
+	switch (type) {
+	case 0:
+		std::cout << "[debug]: 增量式PID" << std::endl;
+		return sf::Type::ControlManner::Incremental;
+	case 1:
+		std::cout << "[debug]: NULLTYPE" << std::endl;
+	}
+	//! 如果未命中则使用增量式
+	std::cout << "[debug]: 增量式PID" << std::endl;
+	return sf::Type::ControlManner::Incremental;
+}
+
 static sf::Type::LockManner convertLockType(int type) {
 	switch (type) {
 	case 0:
-		std::cout << "[debug]: Functional" << std::endl;
-		return sf::Type::LockManner::Functional;
+		std::cout << "[debug]: Sync" << std::endl;
+		return sf::Type::LockManner::Sync;
 	case 1:
-		std::cout << "[debug]: Multithread" << std::endl;
-		return sf::Type::LockManner::Multithread;
+		std::cout << "[debug]: Async" << std::endl;
+		return sf::Type::LockManner::Async;
 	}
 	//! 如果未命中则使用SendInput
-	std::cout << "[debug]: Functional" << std::endl;
-	return sf::Type::LockManner::Functional;
+	std::cout << "[debug]: Sync" << std::endl;
+	return sf::Type::LockManner::Sync;
 }
 
 #define WINDOWS_NAME "test"
@@ -179,12 +192,12 @@ bool Actuator::setLockLogicObject() {
 
 	//! 配置自瞄信息
 	LockInfo lock_info{};
-	lock_info.manner = convertLockType(m_sharedmemory->s_info.lock_type);
+	lock_info.lock_manner = convertLockType(m_sharedmemory->s_info.lock_type);
+	lock_info.control_manner = convertControlType(m_sharedmemory->s_info.control_model);
 	lock_info.point = &m_point;
 	lock_info.process = &m_process;
 	lock_info.mouse_info = mouse_info;
 	lock_info.sharedmemory = m_sharedmemory;
-
 
 	//! 初始化lock对象
 	m_lock = sf::createLock(lock_info);

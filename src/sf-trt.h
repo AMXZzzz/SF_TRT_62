@@ -14,6 +14,9 @@
 */
 #pragma once
 
+
+#define DataVersion 6.2.0
+
 //! 跨进程数据指针,实时性
 struct Data {
 	float conf = 0.3;							//! 置信度指针
@@ -37,7 +40,7 @@ struct Data {
 	float kp_y = 0.3;
 	float ki_y = 0.1;
 	float kd_y = 0.1;
-
+	int max_pixel = 15;							//! 最大移动像素
 	int delay_base = 150;
 	int delay_delay = 60;
 
@@ -50,6 +53,7 @@ struct Info {
 	int equipment = 0;						//! 设备索引 
 	int lock_type = 0;						//! 自瞄逻辑的方式 
 	int mousec_type = 0;					//! 移动方式 
+	int control_model = 1;						//! 使用的控制算法
 	std::string model_path = "";			//! 模型路径
 	std::string logger_path = "";			//! 模型路径
 

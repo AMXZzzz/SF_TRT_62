@@ -12,35 +12,30 @@
 * [地址]:https://github.com/AMXZzzz/SF_TRT_62.git
 * [日期]: 2023/10/26
 */
-#pragma once
-#include "lock_base.h"
-#include "IState.h"
-#include "yolo_base.h"
-#include "control_base.h"
+#include "control_pid.h"
 
-class Functional: public LOCK {
-public:
-	Functional(LockInfo info):LOCK(info){
-		std::cout << "[debug]: Sync 派生类构造" << std::endl;
-	}
-	//! 初始化lock 
-	IStates initLock() override;
+IStates PID::init() {
+    return IStates();
+}
 
-	//! 开始动作
-	void action() override;
-	//! 释放
-	void Release() override;
-private:
-	Control* control;
+float PID::control_x(const float input, Data data) {
+	pid_x.deviation = input - pid_x.target_amount;
+	pid_x.P = pid_x.deviation * data.kp_x;
+	pid_x.I = (pid_x.I + pid_x.deviation) * data.ki_x;
+	pid_x.D = (pid_x.deviation - pid_x.last_deviation) * data.kd_x;
+	pid_x.last_deviation = pid_x.deviation;
+	return pid_x.P + pid_x.I + pid_x.D;
+}
 
-	//! 计算和准星的距离
-	void categoryFilter(std::vector<float>* distance, std::vector<int>* indices, int idx);
-	//! 执行扳机
-	void executeTrigger(TargetInfo* target);
-	//! 自动扳机
-	void autoTrigger(TargetInfo* target);
-	//! 单移动
-	void onlyMcove(TargetInfo* target);
-	~Functional(){std::cout << "[debug]: Sync 派生类析构" << std::endl;}
-};
+float PID::control_y(const float input, Data data) {
+	pid_y.deviation = input - pid_y.target_amount;
+	pid_y.P = pid_y.deviation * data.kp_y;
+	pid_y.I = (pid_y.I + pid_y.deviation) * data.ki_y;
+	pid_y.D = (pid_y.deviation - pid_y.last_deviation) * data.kd_y;
+	pid_y.last_deviation = pid_y.deviation;
+	return pid_y.P + pid_y.I + pid_y.D;
+}
 
+bool PID::Release() {
+    return false;
+}

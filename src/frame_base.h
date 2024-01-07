@@ -17,7 +17,6 @@
 #include "yolo_base.h"
 #include "IState.h"
 
-
 //! 框架类型命名空间
 namespace sf {
 	namespace Type {
