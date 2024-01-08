@@ -14,7 +14,6 @@
 */
 #include "control_base.h"
 #include "control_pid.h"
-#include "control_coupling-pid.h"
 
 Control* sf::createControlObj(sf::Type::ControlManner type) {
 	switch (type) {
