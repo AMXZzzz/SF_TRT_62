@@ -32,9 +32,7 @@ public:
 	IStates getLastErrorInfo() override;
 
 	//! 获取日志对象
-	std::vector<IStates> getStates() {
-		return errors;
-	}
+	std::vector<IStates> getStates();
 
 	//! 集预处理,推理,后处理一身的推理接口
 	void Detect(cv::Mat&) override;
@@ -43,7 +41,7 @@ public:
 	void Release() override;
 
 private:
-	~ITensorRt() {};
+
 
 	int input_idx = 0;							//! 输入节点索引
 	int output_idx = 0;							//! 输入节点索引
@@ -79,6 +77,6 @@ private:
 	bool CheckPrt();
 
 public:
-	ITensorRt(YOLO* yolo, std::shared_ptr<spdlog::logger> logger, int equipment) :Frame(yolo, logger, equipment) {}
-
+	ITensorRt(YOLO* yolo, std::shared_ptr<spdlog::logger> logger, int equipment);
+	~ITensorRt();
 };

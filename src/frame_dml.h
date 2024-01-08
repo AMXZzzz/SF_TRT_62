@@ -38,6 +38,7 @@ public:
 	void Release() override;
 
 private:
+	IDML();
 	std::vector<IStates> dmlerrors;
 	size_t input_tensor_size = 1;						//! 输入数据大小
 
@@ -61,6 +62,6 @@ private:
 	void markError(char* info, bool);
 
 public:
-	IDML(YOLO* yolo, std::shared_ptr<spdlog::logger> logger, int equipment) : Frame(yolo, logger, equipment) {}
-	~IDML() {};
+	IDML(YOLO* yolo, std::shared_ptr<spdlog::logger> logger, int equipment);
+	~IDML();
 };

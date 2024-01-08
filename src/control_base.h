@@ -17,6 +17,24 @@
 #include "sf-trt.h"
 
 
+class Control {
+public:
+	//! 初始化
+	virtual IStates init() = 0;
+	//! x轴
+	virtual float control_x(const float input, Data data) = 0;
+	//! y轴
+	virtual float control_y(const float input, Data data) = 0;
+	//! 释放
+	virtual void Release() = 0;
+	virtual ~Control();
+protected:
+	Control();
+
+private:
+
+};
+
 namespace sf {
 	namespace Type {
 		enum ControlManner :int {
@@ -25,26 +43,6 @@ namespace sf {
 		};
 	}
 }
-
-
-class Control {
-public:
-	virtual ~Control() {
-		std::cout << "[debug]: LOCK基类释放" << std::endl;
-	}
-	//! 初始化
-	virtual IStates init() = 0;
-	//! 执行控制
-	virtual float control_x(const float input, Data data) = 0;
-
-	virtual float control_y(const float input, Data data) = 0;
-
-	//! 释放
-	virtual bool Release() = 0;
-
-protected:
-
-};
 
 namespace sf {
 	Control* createControlObj(sf::Type::ControlManner type);

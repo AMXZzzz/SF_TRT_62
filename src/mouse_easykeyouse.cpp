@@ -40,5 +40,14 @@ IStates IEasyKeyMouse::close() {
     if (INVALID_HANDLE_VALUE != easy_key_mouse_handle) {
         M_Close(easy_key_mouse_handle);
     }
+    delete this;
     return IStates(true, "易键鼠释放完成");
+}
+
+IEasyKeyMouse::IEasyKeyMouse() {
+    std::cout << "[debug]: IEasyKeyMouse 构造" << std::endl;
+}
+
+IEasyKeyMouse::~IEasyKeyMouse() {
+    std::cout << "[debug]: IEasyKeyMouse 析构" << std::endl;
 }

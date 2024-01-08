@@ -68,8 +68,16 @@ void YOLOV8::DecodeOutput(float* output) {
 }
 
 void YOLOV8::Release() {
-	std::cout << "yolov8释放" << std::endl;
+	std::cout << "yolov8 析构" << std::endl;
 	delete this;
+}
+
+YOLOV8::YOLOV8(float* conf, float* iou, Process* process) :YOLO(conf, iou, process) {
+	std::cout << "[debug]: yolov8 构造" << std::endl;
+}
+
+YOLOV8::~YOLOV8() {
+	std::cout << "[debug]: yolov8 构造" << std::endl;
 }
 
 

@@ -98,6 +98,13 @@ void YOLOX::generate_grids_and_stride() {
 }
 
 void YOLOX::Release() {
-	std::cout << "yolov8释放" << std::endl;
 	delete this;
+}
+
+YOLOX::YOLOX(float* conf, float* iou, Process* process) : YOLO(conf, iou, process) {
+	std::cout << "[debug]: yolox 构造" << std::endl;
+}
+
+YOLOX::~YOLOX() {
+	std::cout << "[debug]: yolox 析构" << std::endl;
 }

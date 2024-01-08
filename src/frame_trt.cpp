@@ -141,6 +141,10 @@ IStates ITensorRt::getLastErrorInfo() {
 	}
 }
 
+std::vector<IStates> ITensorRt::getStates() {
+	return errors;
+}
+
 void ITensorRt::markError(std::string info, bool error = false) {
 	MESSAGEBOXA(info.data(), MB_OK);
 	errors.push_back(IStates(error, std::string(info)));
@@ -455,7 +459,13 @@ void ITensorRt::Release() {
 		output_memory = nullptr;
 	}
 	LOGINFO("释放TensorRt资源 Done \n\n\n\n");
-	std::cout << "TensorRt对象释放" << std::endl;
 	delete this;
 }
 
+ITensorRt::ITensorRt(YOLO* yolo, std::shared_ptr<spdlog::logger> logger, int equipment) :Frame(yolo, logger, equipment) {
+	std::cout << "[debug]: TensorRt 构造" << std::endl;
+}
+
+ITensorRt::~ITensorRt() {
+	std::cout << "[debug]: TensorRt 析构" << std::endl;
+}

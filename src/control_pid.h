@@ -28,7 +28,7 @@ struct PIDInfo {
 class PID: public Control {
 
 public:
-
+	PID();
 	// Í¨¹ý Control ¼Ì³Ð
 	IStates init() override;
 
@@ -36,9 +36,10 @@ public:
 
 	float control_y(const float input, Data data) override;
 
-	bool Release() override;
+	void Release() override;
 
 private:
+	~PID();
 	PIDInfo pid_x;
 	PIDInfo pid_y;
 	float pi = 3.14159265358979323846;

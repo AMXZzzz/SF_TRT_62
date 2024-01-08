@@ -91,22 +91,31 @@ void test() {
 #endif
 
 	//! 监听循环
-	while (sharedmemory->s_signal.dll_exit_signal == false) {
+	while (true) {
 		//! 启动AI线程信号
 		if (sharedmemory->s_signal.ai_start_signal == true) {
-			ac.start();	//! 启动AI
 			sharedmemory->s_signal.ai_start_signal = false;	//! 复位信号，不然一直在创建线程
+			ac.start();	//! 启动AI
 		}
 
 		//! 监听到退出dll信号
 		if (sharedmemory->s_signal.dll_exit_signal == true) {
+			//! 复位信号
+			sharedmemory->s_signal.dll_exit_signal = false;
+
 			ac.exit();		//! 使执行器线程退出
 			ac.join();		//! 等待执行器退出
-			//! 释放
-			ac.Release();
-			//! 复位信号
-			sharedmemory->s_signal.dll_exit_signal = false;		
+
 			//! 卸载自身dll，如果有
+		}
+
+		//! 手动退出
+		if (GetAsyncKeyState(0x23)) {
+			sharedmemory->s_signal.dll_exit_signal = true;
+		}
+		//! 手动启动
+		if (GetAsyncKeyState(0x24)) {
+			sharedmemory->s_signal.ai_start_signal = true;
 		}
 	}
 }
@@ -114,13 +123,6 @@ void test() {
 //! 测试
 int main() {
 	test();
+
 	return 0;
 }
-
-
-/*
-	代做，
-		为每个类添加debug,
-		添加注释
-		添加日志
-*/

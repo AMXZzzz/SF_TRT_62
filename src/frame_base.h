@@ -30,9 +30,7 @@ namespace sf {
 
 class Frame {
 public:
-	Frame(YOLO* yolo, const std::shared_ptr<spdlog::logger>& logger, int equipment)
-		: m_yolo(yolo), m_logger(logger), m_equipment(equipment) {
-	}
+	Frame(YOLO* yolo, const std::shared_ptr<spdlog::logger>& logger, int equipment);
 
 	//! 解析模型
 	virtual bool AnalyticalModel(const char* engine_path) = 0;
@@ -50,11 +48,15 @@ public:
 	virtual	IStates getLastErrorInfo() = 0;
 
 	//! 虚基类析构
-	virtual ~Frame() { std::cout << "Frame基类释放" << std::endl; };
+	virtual ~Frame();
+
 protected:
 	YOLO* m_yolo;
 	std::shared_ptr<spdlog::logger> m_logger = nullptr;
 	int m_equipment = 0;
+
+private:
+	Frame();
 };
 
 //! 工厂函数，用于创建对象
@@ -67,5 +69,5 @@ struct FRAMEINFO {
 };
 
 namespace sf {
-	Frame* createFrame(FRAMEINFO* info);
+	Frame* createFrameObject(FRAMEINFO* info);
 }

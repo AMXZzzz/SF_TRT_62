@@ -18,7 +18,7 @@
 
 class YOLOV8: public YOLO {
 public:
-	YOLOV8(float* conf, float* iou, Process* process) :YOLO(conf, iou, process) {};
+	YOLOV8(float* conf, float* iou, Process* process);
 
 	//! 获取输出节点的名称,二级指针
 	const char** getOutputName() override;
@@ -35,8 +35,8 @@ public:
 	void Release() override;
 
 private:
-	~YOLOV8() {};
-
+	~YOLOV8();
+	YOLOV8();
 	// YOLOV8自己的层名
 	const char* output_name[1] = { "output0" };
 };

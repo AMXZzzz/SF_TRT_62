@@ -20,9 +20,7 @@
 
 class Functional: public LOCK {
 public:
-	Functional(LockInfo info):LOCK(info){
-		std::cout << "[debug]: Sync 派生类构造" << std::endl;
-	}
+	Functional(LockInfo info);
 	//! 初始化lock 
 	IStates initLock() override;
 
@@ -31,7 +29,6 @@ public:
 	//! 释放
 	void Release() override;
 private:
-	Control* control;
 
 	//! 计算和准星的距离
 	void categoryFilter(std::vector<float>* distance, std::vector<int>* indices, int idx);
@@ -41,6 +38,6 @@ private:
 	void autoTrigger(TargetInfo* target);
 	//! 单移动
 	void onlyMcove(TargetInfo* target);
-	~Functional(){std::cout << "[debug]: Sync 派生类析构" << std::endl;}
+	~Functional();
 };
 

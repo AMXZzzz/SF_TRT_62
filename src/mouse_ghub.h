@@ -19,7 +19,8 @@
 
 class IGHUB: public IMouse {
 public:
-
+	IGHUB();
+	~IGHUB();
 	// Í¨¹ý IMouse ¼Ì³Ð
 	bool monitor(int key) override;
 	void trigger() override;

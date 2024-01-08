@@ -22,3 +22,11 @@ Control* sf::createControlObj(sf::Type::ControlManner type) {
 	}
 	return new PID();
 }
+
+Control::Control() {
+	std::cout << "[debug]: Control 基类构造" << std::endl;
+}
+
+Control::~Control() {
+	std::cout << "[debug]: Control 基类析构" << std::endl;
+}

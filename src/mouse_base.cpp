@@ -25,3 +25,11 @@ IMouse* sf::createMouse(MouseInfo* info) {
 	//! 未命中就为空
     return nullptr;
 }
+
+IMouse::IMouse() {
+	std::cout << "[debug]: IMouse 基类构造" << std::endl;
+}
+
+IMouse::~IMouse() {
+	std::cout << "[debug]: IMouse 基类析构" << std::endl; 
+}

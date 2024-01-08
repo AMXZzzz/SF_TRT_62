@@ -17,7 +17,7 @@
 #include "yolov8.h"
 #include "yolox.h"
 
-YOLO* sf::createYoloTable(YOLOINFO* info) {
+YOLO* sf::createYoloObject(YOLOINFO* info) {
 	switch (info->type) {
 	case sf::Type::TYPE_YOLOV5: return new YOLOV5(info->conf, info->iou, info->process);
 	case sf::Type::TYPE_YOLOV8: return new YOLOV8(info->conf, info->iou, info->process);
@@ -72,5 +72,13 @@ void YOLO::setOutputDims(std::vector<int64_t>& output) {
 
 bool YOLO::dims_error(int64_t dim1, int64_t dim2) {
 	return dim1 > dim2 ? false : true;	// 默认是yolov5 和yolox的维度验证, yolov8需要重写
+}
+
+YOLO::YOLO(float* conf, float* iou, Process* process) :m_conf(conf), m_iou(iou), m_process(process) {
+	std::cout << "[debug]: yolo 基类构造" << std::endl;
+}
+
+YOLO::~YOLO() {
+	std::cout << "[debug]: yolo 基类析构" << std::endl;
 }
 

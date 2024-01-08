@@ -15,7 +15,7 @@
 #include "lock_base.h"
 #include "lock_functional.h"
 
-LOCK* sf::createLock(LockInfo info) {
+LOCK* sf::createLockObject(LockInfo info) {
 	switch (info.lock_manner) {
 	case sf::Type::LockManner::Sync: return new Functional(info);
 	case sf::Type::LockManner::Async: return new Functional(info);
@@ -23,7 +23,13 @@ LOCK* sf::createLock(LockInfo info) {
     return nullptr;
 }
 
+LOCK::LOCK(LockInfo info) : m_point(info.point), m_mouse_info(info.mouse_info), m_process(info.process),
+	m_sharedmemory(info.sharedmemory), m_control_manner(info.control_manner) {
+	std::cout << "[debug]: LOCK 基类构造" << std::endl;
+	if (m_process == nullptr) { std::cout << "[debug]: 传入LOCK的process指针为空" << std::endl; }
+	if (m_sharedmemory == nullptr) { std::cout << "[debug]: 传入LOCK的sharedmemory指针为空" << std::endl; }
+}
+
 LOCK::~LOCK() {
-	m_mouse->close();
-	std::cout << "[debug]: LOCK基类释放" << std::endl;
+	std::cout << "[debug]: LOCK 基类析构" << std::endl;
 }

@@ -62,8 +62,14 @@ void YOLOV5::DecodeOutput(float* output) {
 	cv::dnn::NMSBoxes(m_process->boxes, m_process->confidences, *m_conf, *m_iou, m_process->indices);
 }
 
-
 void YOLOV5::Release() {
-	std::cout << "yolov5释放" << std::endl;
 	delete this;
+}
+
+YOLOV5::YOLOV5(float* conf, float* iou, Process* process) : YOLO(conf, iou, process) {
+	std::cout << "[debug]: yolov5 构造" << std::endl;
+}
+
+YOLOV5::~YOLOV5() {
+	std::cout << "[debug]: yolov5 析构" << std::endl;
 }

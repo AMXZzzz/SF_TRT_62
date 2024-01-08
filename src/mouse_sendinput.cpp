@@ -15,37 +15,37 @@
 #include "mouse_sendinput.h"
 
 IStates ISendInput::init() {
-    input.type = INPUT_MOUSE;
-    input.mi.mouseData = 0;
-    input.mi.dwExtraInfo = 0;
-    input.mi.time = 0;
-    input.mi.dwFlags = MOUSEEVENTF_MOVE; //MOUSEEVENTF_ABSOLUTE 代表决对位置  MOUSEEVENTF_MOVE代表相对移动
+    move_input.type = INPUT_MOUSE;
+    move_input.mi.mouseData = 0;
+    move_input.mi.dwExtraInfo = 0;
+    move_input.mi.time = 0;
+    move_input.mi.dwFlags = MOUSEEVENTF_MOVE; //MOUSEEVENTF_ABSOLUTE 代表决对位置  MOUSEEVENTF_MOVE代表相对移动
     return IStates(true,"Seninput 初始化正常");
 }
 
 IStates ISendInput::move(int x, int y) {
-    input.mi.dx = x;
-    input.mi.dy = y;
+    move_input.mi.dx = x;
+    move_input.mi.dy = y;
  
-    if (SendInput(1, &input, sizeof(input)) == 0) {
+    if (SendInput(1, &move_input, sizeof(move_input)) == 0) {
         return IStates(false, "SendInput 执行失败");
     }
     return IStates();   //! 必须return
 }
 
 void ISendInput::trigger() {
-    INPUT input{};
-    input.type = INPUT_MOUSE;
-    input.mi.dwFlags = MOUSEEVENTF_LEFTDOWN;   //MOUSEEVENTF_LEFTDOWN 左键按下
-    input.mi.time = 0;
-    input.mi.dwExtraInfo = 0;
-    SendInput(1, &input, sizeof(INPUT));
+    INPUT click_input{};
+    click_input.type = INPUT_MOUSE;
+    click_input.mi.dwFlags = MOUSEEVENTF_LEFTDOWN;   //MOUSEEVENTF_LEFTDOWN 左键按下
+    click_input.mi.time = 0;
+    click_input.mi.dwExtraInfo = 0;
+    SendInput(1, &click_input, sizeof(INPUT));
 
-    input.type = INPUT_MOUSE;
-    input.mi.dwFlags = MOUSEEVENTF_LEFTUP;   // MOUSEEVENTF_LEFTUP  左键松开
-    input.mi.time = 0;
-    input.mi.dwExtraInfo = 0;
-    SendInput(1, &input, sizeof(INPUT));
+    click_input.type = INPUT_MOUSE;
+    click_input.mi.dwFlags = MOUSEEVENTF_LEFTUP;   // MOUSEEVENTF_LEFTUP  左键松开
+    click_input.mi.time = 0;
+    click_input.mi.dwExtraInfo = 0;
+    SendInput(1, &click_input, sizeof(INPUT));
 }
 
 bool ISendInput::monitor(int key) {
@@ -53,6 +53,14 @@ bool ISendInput::monitor(int key) {
 }
 
 IStates ISendInput::close() {
+    delete this;
     return IStates(true,"SenInput close done");
 }
 
+ISendInput::ISendInput() {
+    std::cout << "[debug]: ISendInput 构造" << std::endl;
+}
+
+ISendInput::~ISendInput() {
+    std::cout << "[debug]: ISendInput 析构" << std::endl;
+}

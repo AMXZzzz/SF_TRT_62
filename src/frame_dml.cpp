@@ -162,6 +162,7 @@ bool IDML::parseInput() {
 	}
 
 	LOGWARN("获取输入节点失败，请确保模型输入名为image");
+	std::cout << "获取输入节点失败，请确保模型输入名为image" << std::endl;
 	return false;
 }
 
@@ -190,10 +191,11 @@ bool IDML::parseOutput() {
 
 		std::vector<int64_t> temp;
 		temp.resize(shape_size);        //容器大小
-		std::cout << "维度shape：" << shape_size << std::endl;
+		//std::cout << "维度 shape：" << shape_size << std::endl;
 		CHECKORT(m_ort->GetDimensions(output_tensor_info, temp.data(), shape_size), __LINE__);
 
 		if (temp.empty()) {
+			std::cout << "[debug]: DML 获取输出数据失败" << std::endl;
 			LOGWARN("获取输出数据失败");
 			return false;
 		}
@@ -206,6 +208,7 @@ bool IDML::parseOutput() {
 		if (m_yolo->dims_error(temp[1], temp[2])) {
 			LOGWARN("输出shape和框架不匹配. Shape Error: [ {} {} {} ] ", tostr(temp[0]), tostr(temp[1]), tostr(temp[2]));
 			markError("模型和框架不匹配");
+			std::cout << "[debug]: DML 输出shape和框架不匹配" << std::endl;
 			return false;
 		}
 
@@ -216,9 +219,10 @@ bool IDML::parseOutput() {
 		return true;
 	}
 
-	std::cout << "找不到该节点: " << *m_yolo->getOutputName() << std::endl;
-	LOGWARN("获取输出节点失败，请确保模型输出名为{}", *m_yolo->getOutputName());
 	// 未找到
+	std::cout << "找不到输出节点: " << *m_yolo->getOutputName() << std::endl;
+	LOGWARN("获取输出节点失败，请确保模型输出名为{}", *m_yolo->getOutputName());
+
 	return false;
 }
 
@@ -255,7 +259,7 @@ bool IDML::AnalyticalModel(const char* onnx_path) {
 }
 
 bool IDML::AnalyticalModel(const std::string onnx_path) {
-	//! 检查传入DML对象的指针是否有效
+	//! 检查指针是否有效
 	if (!CheckPrt()) {
 		return false;
 	}
@@ -290,6 +294,13 @@ void IDML::Release() {
 	if (m_output_tensors) m_ort->ReleaseValue(m_output_tensors);
 	LOGINFO("释放DML框架 Done...");
 
-	std::cout << "DML对象释放" << std::endl;
 	delete this;
+}
+
+IDML::IDML(YOLO* yolo, std::shared_ptr<spdlog::logger> logger, int equipment) : Frame(yolo, logger, equipment) {
+	std::cout << "[debug]: DML 构造" << std::endl;
+}
+
+IDML::~IDML() {
+	std::cout << "[debug]: DML 析构" << std::endl;
 }

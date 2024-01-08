@@ -18,6 +18,7 @@
 
 class ISendInput: public IMouse {
 public:
+	ISendInput();
 	//! 初始化移动
 	IStates init() override;
 	//! 移动方法
@@ -26,9 +27,10 @@ public:
 	IStates close() override;
 
 private:
-	INPUT input;
+	INPUT move_input{};
 
 	// 通过 IMouse 继承
 	bool monitor(int key) override;
 	void trigger() override;
+	~ISendInput();
 };

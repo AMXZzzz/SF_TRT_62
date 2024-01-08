@@ -18,7 +18,7 @@
 class YOLOX :public YOLO {
 public:
 	//! 传入置信度指针,iou指针,处理结构体
-	YOLOX(float* conf, float* iou, Process* process) : YOLO(conf, iou, process) {};
+	YOLOX(float* conf, float* iou, Process* process);
 
 	//! 获取归一化的值
 	const float getNormalized() override;
@@ -32,9 +32,9 @@ public:
 	//! 主动释放
 	void Release() override;
 
-
 private:
-	~YOLOX() {};
+	~YOLOX();
+	YOLOX();
 
 	//! yolox的落点函数
 	void generate_grids_and_stride();

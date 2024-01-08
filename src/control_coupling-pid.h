@@ -36,7 +36,7 @@ public:
 
 	float control_y(const float input, Data data) override;
 
-	bool Release() override;
+	void Release() override;
 private:
     NEURALPID v_x;
     NEURALPID v_y;

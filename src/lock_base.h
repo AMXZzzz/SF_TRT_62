@@ -51,12 +51,7 @@ struct LockInfo {
 
 class  LOCK {
 public:
-	LOCK(LockInfo info): m_point(info.point),m_mouse_info(info.mouse_info), m_process(info.process),
-		m_sharedmemory(info.sharedmemory), m_control_manner(info.control_manner){
-		std::cout << "[debug]: LOCK基类构造" << std::endl;
-		if (m_process == nullptr) {std::cout << "[debug]: 传入LOCK的process指针为空" << std::endl;}
-		if (m_sharedmemory == nullptr) {std::cout << "[debug]: 传入LOCK的sharedmemory指针为空" << std::endl;}
-	}
+	LOCK(LockInfo info);
 	//! 初始化lock 
 	virtual IStates initLock() = 0;
 	//! 执行自瞄
@@ -68,16 +63,17 @@ public:
 protected:
 	sf::Type::ControlManner m_control_manner;
 	IPoint* m_point;				//! 坐标点
+	Control* control;				//! 控制对象
 	IMouse* m_mouse;				//! 鼠标对象
 	Process* m_process;				//! 先验框
 	MouseInfo m_mouse_info{};		//! 鼠标配置
 
 	SharedMemory* m_sharedmemory;	//! 共享内存，优化单信号
 private:
-	LOCK() {};	//! 禁用默认构造
+	LOCK();	//! 禁用默认构造
 };
 
 namespace sf {
-	LOCK* createLock(LockInfo info);
+	LOCK* createLockObject(LockInfo info);
 }
 

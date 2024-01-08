@@ -36,7 +36,7 @@ namespace sf {
 class YOLO {
 public:
 
-	YOLO(float* conf, float* iou, Process* process) :m_conf(conf), m_iou(iou), m_process(process) {}
+	YOLO(float* conf, float* iou, Process* process);
 
 	// --------------------------- 获取信息API --------------------------- // 
 	//! 获取yolo类型类型
@@ -85,7 +85,7 @@ public:
 	//! 释放父类指针指向的对象
 	//! 若没有虚析构,则只会释放父类本身内存
 	//! 出现无法释放派生类的内存
-	virtual ~YOLO() { std::cout << "yolo基类释放" << std::endl; };
+	virtual ~YOLO();
 
 protected:
 
@@ -99,6 +99,9 @@ protected:
 	float normalized = 1.f / 255.f;
 	std::vector<int64_t> m_input_dims = {};
 	std::vector<int64_t> m_output_dims = {};
+
+private:
+	YOLO();
 };
 
 
@@ -112,6 +115,6 @@ struct YOLOINFO {
 };
 
 namespace sf {
-	YOLO* createYoloTable(YOLOINFO* info);
+	YOLO* createYoloObject(YOLOINFO* info);
 }
 

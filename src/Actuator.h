@@ -24,6 +24,8 @@
 
 class Actuator {
 public:
+
+	~Actuator();
 	//! 启动线程
 	void start();
 	//! 退出线程
@@ -31,10 +33,7 @@ public:
 	//! 等待线程退出
 	void join();
 	//! 有参构造
-	Actuator(SharedMemory* sharedmemory) : m_sharedmemory(sharedmemory){
-		//! 
-		if (m_sharedmemory == nullptr)  std::cout << "传入 Actuator 的 SharedMemory 指针为空" << std::endl;
-	}
+	Actuator(SharedMemory* sharedmemory);
 	//! 释放
 	void Release();
 private:
@@ -64,7 +63,6 @@ private:
 	bool initializeResources();
 	//! 工作线程
 	void word();
-	//! 禁用默认构造
-	Actuator() {}
+	Actuator();
 };
 

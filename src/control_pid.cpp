@@ -36,6 +36,15 @@ float PID::control_y(const float input, Data data) {
 	return pid_y.P + pid_y.I + pid_y.D;
 }
 
-bool PID::Release() {
-    return false;
+void PID::Release() {
+	delete this;
+}
+
+//! -------------- [debug] ------------ //
+PID::PID() {
+	std::cout << "[debug]: PID ¹¹Ôì" << std::endl;
+}
+
+PID::~PID() {
+	std::cout << "[debug]: PID Îö¹¹" << std::endl;
 }

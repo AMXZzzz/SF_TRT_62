@@ -307,12 +307,13 @@ IStates Functional::initLock() {
 		return hr;
 	}
 
-	//! 初始化控制control
+	//! 初始化控制 control
 	control = sf::createControlObj(m_control_manner);
 	if (m_mouse == nullptr) {
 		std::cout << "[debug]: 创建control对象失败" << std::endl;
 		return IStates(false, "创建control对象失败");
 	}
+
 	//! control 初始化
 	hr = control->init();
 	if (hr.is_error()) {
@@ -324,5 +325,14 @@ IStates Functional::initLock() {
 
 void Functional::Release() {
 	m_mouse->close();
+	control->Release();
 	delete this;                //! 等价于调用析构
+}
+
+Functional::Functional(LockInfo info) :LOCK(info) {
+	std::cout << "[debug]: Functional 构造" << std::endl;
+}
+
+Functional::~Functional() {
+	std::cout << "[debug]: Functional 析构" << std::endl; 
 }

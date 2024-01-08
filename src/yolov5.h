@@ -18,7 +18,7 @@
 class  YOLOV5 final : public YOLO {
 public:
 	//! 有参构造
-	YOLOV5(float* conf, float* iou, Process* process) : YOLO(conf, iou, process) {};
+	YOLOV5(float* conf, float* iou, Process* process);
 
 	//! 获取当前配置表属性
 	sf::Type::YoloType getYoloType() override;
@@ -30,5 +30,6 @@ public:
 	void Release() override;
 
 private:
-	~YOLOV5() {};
+	~YOLOV5();
+	YOLOV5();
 };

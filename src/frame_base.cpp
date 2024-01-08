@@ -17,10 +17,18 @@
 #include "frame_trt.h"
 
 
-Frame* sf::createFrame(FRAMEINFO* info) {
+Frame* sf::createFrameObject(FRAMEINFO* info) {
 	switch (info->frame_type) {
 	case sf::Type::FrameType::DML_FRAME: return new IDML(info->yolo, info->logger, info->equipment);
 	case sf::Type::FrameType::TRT_FRAME: return new ITensorRt(info->yolo, info->logger, info->equipment);
 	default: return nullptr;
 	}
 }
+
+Frame::Frame(YOLO* yolo, const std::shared_ptr<spdlog::logger>& logger, int equipment) : m_yolo(yolo), m_logger(logger), m_equipment(equipment) {
+	std::cout << "[debug]: Frame 基类构造" << std::endl;
+}
+
+Frame::~Frame() {
+	std::cout << "[debug]: Frame 基类析构" << std::endl;
+};

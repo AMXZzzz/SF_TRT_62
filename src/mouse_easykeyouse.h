@@ -18,6 +18,7 @@
 
 class IEasyKeyMouse : public IMouse {
 public:
+	IEasyKeyMouse();
 	// Í¨¹ý IMouse ¼Ì³Ð
 	IStates init() override;
 	bool monitor(int key) override;
@@ -25,8 +26,7 @@ public:
 	IStates move(int x, int y) override;
 	IStates close() override;
 private:
+	~IEasyKeyMouse();
 	HANDLE easy_key_mouse_handle;
-
-
 };
 

@@ -25,14 +25,10 @@ namespace sf {
 	}
 }
 
-struct MouseInfo {
-	sf::Type::MousecType mousec_manner;		//! 移动方式
-	void* data;
-};
 
 class IMouse {
 public:
-	IMouse() { std::cout << "[debug]: IMouse 基类构造" << std::endl; }
+	IMouse();
 	//! 初始化移动
 	virtual IStates init() = 0;
 	//! 监听按键
@@ -44,9 +40,14 @@ public:
 	//! 释放资源
 	virtual IStates close() = 0;
 	//! 析构虚化
-	virtual ~IMouse() { std::cout << "[debug]: IMouse 基类析构" << std::endl; };
+	virtual ~IMouse();
 private:
 
+};
+
+struct MouseInfo {
+	sf::Type::MousecType mousec_manner;		//! 移动方式
+	void* data;
 };
 
 namespace sf {

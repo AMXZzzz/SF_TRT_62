@@ -111,12 +111,20 @@ void IGHUB::trigger() {
     clickOrderToDrive(ghub_handle, 0);      //! 释放左键
 }
 
-
 IStates IGHUB::close() {
     if (ghub_handle != NULL) {
         NtClose(ghub_handle);
         ghub_handle = nullptr;
     }
+    delete this;
     return IStates(true,"罗技驱动释放成功");
+}
+
+IGHUB::IGHUB() {
+    std::cout << "[debug]: IGHUB 构造" << std::endl;
+}
+
+IGHUB::~IGHUB() {
+    std::cout << "[debug]: IGHUB 析构" << std::endl;
 }
 

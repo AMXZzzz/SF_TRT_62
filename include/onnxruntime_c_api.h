@@ -159,7 +159,7 @@ extern "C" {
 #undef ORT_API2_STATUS
 #define ORT_API2_STATUS(NAME, ...) OrtStatus* NAME(__VA_ARGS__)
 #undef ORT_CLASS_RELEASE
-#define ORT_CLASS_RELEASE(X) void Release##X(Ort##X* input)
+#define ORT_CLASS_RELEASE(X) void Release##X(Ort##X* move_input)
 #undef NO_EXCEPTION
 #define NO_EXCEPTION
 #endif

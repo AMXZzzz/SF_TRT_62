@@ -30,76 +30,48 @@
 
 static sf::Type::YoloType convertYoloType(int type) {
 	switch (type) {
-	case 0:
-		std::cout << "[debug]: YOLOV5" << std::endl;
-		return sf::Type::YoloType::TYPE_YOLOV5;
-	case 1:
-		std::cout << "[debug]: YOLOV8" << std::endl;
-		return sf::Type::YoloType::TYPE_YOLOV8;
-	case 2:
-		std::cout << "[debug]: YOLOX" << std::endl;
-		return sf::Type::YoloType::TYPE_YOLOX;
+	case 0: return sf::Type::YoloType::TYPE_YOLOV5;
+	case 1: return sf::Type::YoloType::TYPE_YOLOV8;
+	case 2: return sf::Type::YoloType::TYPE_YOLOX;
 	}
 	//! 如果未命中则使用yolov5
-	std::cout << "[debug]: YOLOV5" << std::endl;
 	return sf::Type::YoloType::TYPE_YOLOV5;
 }
 
 static sf::Type::FrameType convertFrameType(int type) {
 	switch (type) {
-	case 0:
-		std::cout << "[debug]: TensorRt" << std::endl;
-		return sf::Type::FrameType::TRT_FRAME;
-	case 1:
-		std::cout << "[debug]: DML" << std::endl;
-		return sf::Type::FrameType::DML_FRAME;
+	case 0: return sf::Type::FrameType::TRT_FRAME;
+	case 1: return sf::Type::FrameType::DML_FRAME;
 	}
 	//! 如果未命中则使用DML
-	std::cout << "[debug]: DML" << std::endl;
 	return sf::Type::FrameType::DML_FRAME;
 }
 
 static sf::Type::MousecType convertMousecType(int type) {
 	switch (type) {
-	case 0:
-		std::cout << "[debug]: GHUB" << std::endl;
-		return sf::Type::MousecType::GHUB;
-	case 1:
-		std::cout << "[debug]: EasyKeyMouse" << std::endl;
-		return sf::Type::MousecType::EasyKeyMouse;
-	case 2:
-		std::cout << "[debug]: SendInput" << std::endl;
-		return sf::Type::MousecType::SendInput;
+	case 0: return sf::Type::MousecType::GHUB;
+	case 1: return sf::Type::MousecType::EasyKeyMouse;
+	case 2: return sf::Type::MousecType::SendInput;
 	}
 	//! 如果未命中则使用SendInput
-	std::cout << "[debug]: SendInput" << std::endl;
 	return sf::Type::MousecType::SendInput;
 }
 
 static sf::Type::ControlManner convertControlType(int type) {
 	switch (type) {
-	case 0:
-		std::cout << "[debug]: 增量式PID" << std::endl;
-		return sf::Type::ControlManner::Incremental;
-	case 1:
-		std::cout << "[debug]: NULLTYPE" << std::endl;
+	case 0: return sf::Type::ControlManner::Incremental;
+	case 1: break;
 	}
 	//! 如果未命中则使用增量式
-	std::cout << "[debug]: 增量式PID" << std::endl;
 	return sf::Type::ControlManner::Incremental;
 }
 
 static sf::Type::LockManner convertLockType(int type) {
 	switch (type) {
-	case 0:
-		std::cout << "[debug]: Sync" << std::endl;
-		return sf::Type::LockManner::Sync;
-	case 1:
-		std::cout << "[debug]: Async" << std::endl;
-		return sf::Type::LockManner::Async;
+	case 0: return sf::Type::LockManner::Sync;
+	case 1: return sf::Type::LockManner::Async;
 	}
 	//! 如果未命中则使用SendInput
-	std::cout << "[debug]: Sync" << std::endl;
 	return sf::Type::LockManner::Sync;
 }
 
@@ -131,6 +103,7 @@ void DrawBox(Process* process, cv::Mat& img, bool show) {
 
 bool Actuator::setSpdlog() {
 	// 初始化日志
+
 	CTime t = CTime::GetCurrentTime();
 	static char temp[MAX_PATH]{};
 	if (m_sharedmemory->s_info.logger_path == "") {
@@ -139,6 +112,7 @@ bool Actuator::setSpdlog() {
 	else {
 		_snprintf_s(temp, MAX_PATH, "%s/logs/%d-%d-%d %d-%d-%d.txt", m_sharedmemory->s_info.logger_path.data(), t.GetYear(), t.GetMonth(), t.GetDay(), t.GetHour(), t.GetMinute(), t.GetSecond());
 	}
+
 	m_logger = spdlog::basic_logger_mt("SF_TRT", temp);
 	m_logger->flush_on(spdlog::level::trace);
 	return true;
@@ -154,9 +128,10 @@ bool Actuator::setYoloConfigObject() {
 	yolo_info.type = convertYoloType(m_sharedmemory->s_info.yolo_tyoe);
 
 	//! 创建yolo
-	m_yolo = sf::createYoloTable(&yolo_info);
+	m_yolo = sf::createYoloObject(&yolo_info);
 	if (m_yolo == nullptr) {
-		std::cout << "[debug]: setYoloConfigObject失败" << std::endl;
+		std::cout << "[debug]: 创建yolo对象失败" << std::endl;
+		LOGERROR("创建yolo对象失败")
 		return false;
 	}
 	return true;
@@ -165,51 +140,21 @@ bool Actuator::setYoloConfigObject() {
 bool Actuator::setDetectFrameworkObject() {
 	//! 设置框架属性
 	FRAMEINFO frame_info{};
-	frame_info.equipment = m_sharedmemory->s_info.equipment;
-	frame_info.yolo = m_yolo;
-	frame_info.logger = m_logger;
+	frame_info.equipment = m_sharedmemory->s_info.equipment;		//! 运行设备
+	frame_info.yolo = m_yolo;										//! yolo对象
+	frame_info.logger = m_logger;									
 	frame_info.frame_type = convertFrameType(m_sharedmemory->s_info.frame_type);
 	//! 创建推理框架
-	m_frame = sf::createFrame(&frame_info);
+	m_frame = sf::createFrameObject(&frame_info);
 	if (m_frame == nullptr) {
 		std::cout << "[debug]: setDetectFrameworkObject失败" << std::endl;
+		LOGERROR("创建Frame对象失败")
 		return false;
 	}
 	//! 初始化模型
 	if (!m_frame->AnalyticalModel(m_sharedmemory->s_info.model_path)) {
 		std::cout << "[debug]: 解析模型失败，错误信息: " << m_frame->getLastErrorInfo().getErrorMessage() << std::endl;
 		LOGERROR("解析模型失败,错误:{}", m_frame->getLastErrorInfo().getErrorMessage())
-		return false;
-	}
-	return true;
-}
-
-bool Actuator::setLockLogicObject() {
-	//! 配置鼠标移动
-	MouseInfo mouse_info{};
-	mouse_info.mousec_manner = convertMousecType(m_sharedmemory->s_info.mousec_type);
-	mouse_info.data = "com3";
-
-	//! 配置自瞄信息
-	LockInfo lock_info{};
-	lock_info.lock_manner = convertLockType(m_sharedmemory->s_info.lock_type);
-	lock_info.control_manner = convertControlType(m_sharedmemory->s_info.control_model);
-	lock_info.point = &m_point;
-	lock_info.process = &m_process;
-	lock_info.mouse_info = mouse_info;
-	lock_info.sharedmemory = m_sharedmemory;
-
-	//! 初始化lock对象
-	m_lock = sf::createLock(lock_info);
-	if (m_lock == nullptr) {
-		std::cout << "[debug]: setLockLogicObject失败" << std::endl;
-		return false;
-	}
-	IStates hr = m_lock->initLock();
-	//! 初始化lock
-	if (hr.is_error()) {
-		std::cout << "[debug]:" << hr.getErrorMessage() << std::endl;
-		LOGERROR("初始化Lock失败:{}", hr.getErrorMessage())
 		return false;
 	}
 	return true;
@@ -242,9 +187,44 @@ bool Actuator::setDXGICpatureObject() {
 	return true;
 }
 
+bool Actuator::setLockLogicObject() {
+	//! 配置鼠标移动
+	MouseInfo mouse_info{};
+	mouse_info.mousec_manner = convertMousecType(m_sharedmemory->s_info.mousec_type);
+	mouse_info.data = "com3";
+
+	//! 配置自瞄信息
+	LockInfo lock_info{};
+	lock_info.lock_manner = convertLockType(m_sharedmemory->s_info.lock_type);				//! lock运行方法
+	lock_info.control_manner = convertControlType(m_sharedmemory->s_info.control_model);	//! 控制算法
+	lock_info.point = &m_point;			//! 坐标点
+	lock_info.process = &m_process;		//! 处理指针
+	lock_info.mouse_info = mouse_info;	//! 鼠标初始化信息
+	lock_info.sharedmemory = m_sharedmemory;	//! 共享内存
+
+	//! 初始化lock对象
+	m_lock = sf::createLockObject(lock_info);
+	if (m_lock == nullptr) {
+		std::cout << "[debug]: 创建lock对象失败" << std::endl;
+		LOGERROR("创建lock对象失败")
+			return false;
+	}
+	IStates hr = m_lock->initLock();
+
+	//! 初始化lock
+	if (hr.is_error()) {
+		std::cout << "[debug]:初始化Lock失败，错误信息:" << hr.getErrorMessage() << std::endl;
+		LOGERROR("初始化Lock失败:{}", hr.getErrorMessage())
+			return false;
+	}
+	return true;
+}
+
 bool Actuator::initializeResources() {
-	//! 日志是否初始化过
-	setSpdlog();
+	//! 初始化日志
+	if (!m_logger) {
+		setSpdlog();
+	}
 	//! yolo类型对象
 	asserthr(setYoloConfigObject());
 	//! 初始化框架对象
@@ -257,12 +237,15 @@ bool Actuator::initializeResources() {
 }
 
 void Actuator::start() {
-	if (!actuatorThreadHandle.joinable()) {
+	//! 检查线程存在
+	if (actuatorThreadHandle.joinable() == false) {
+		m_exit_signal = false;
 		actuatorThreadHandle = std::thread(&Actuator::word, this);
+		std::cout << "[debug]: Actuator 线程已启动" << std::endl;
 	}
-	else {
-		std::cout << "Actuator::word线程已启动" << std::endl;
-	}
+	//else {
+	//	std::cout << "[debug]: Actuator 线程已启动" << std::endl;
+	//}
 }
 
 void Actuator::exit() {
@@ -270,18 +253,19 @@ void Actuator::exit() {
 }
 
 void Actuator::join() {
-	if (!actuatorThreadHandle.joinable()) {
+	if (actuatorThreadHandle.joinable() == true) {
 		actuatorThreadHandle.join();
-		std::cout << "Actuator 线程已退出" << std::endl;
+		std::cout << "[debug]: Actuator 线程已退出" << std::endl;
 	}
-	else {
-		std::cout << "Actuator线程未启动" << std::endl;
-	}
+	//else {
+	//	std::cout << "Actuator线程未启动" << std::endl;
+	//}
 }
 
 void Actuator::word() {
 	//! 初始化
 	if (initializeResources()) {
+	
 		//! 运行
 		cv::Mat img;
 		while (m_exit_signal == false) {
@@ -297,14 +281,32 @@ void Actuator::word() {
 			DrawBox(&m_process, img, m_sharedmemory->s_signal.show_detect_window);
 		}
 	}
-
 	//! 释放资源
 	Release();
 }
 
 void Actuator::Release() {
-	m_dx->Release();
-	m_yolo->Release();
-	m_frame->Release();
-	m_lock->Release();
+	if (m_frame != nullptr) {
+		m_frame->Release();
+	}	
+	if (m_lock != nullptr) {
+		m_lock->Release();
+	}	
+	if (m_dx != nullptr) {
+		m_dx->Release();
+	}	
+	if (m_yolo != nullptr) {
+		m_yolo->Release();
+	}
+}
+
+Actuator::Actuator(SharedMemory* sharedmemory) : m_sharedmemory(sharedmemory) {
+	if (m_sharedmemory == nullptr) {
+		std::cout << "传入 Actuator 的 SharedMemory 指针为空" << std::endl;
+	}
+	std::cout << "[debug]: Actuator 构造" << std::endl;
+}
+
+Actuator::~Actuator() {
+	std::cout << "[debug]: Actuator 析构" << std::endl;
 }
