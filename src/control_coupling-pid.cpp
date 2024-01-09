@@ -40,6 +40,6 @@ float CouplingPID::control_y(const float input, Data data) {
     return output;
 }
 
-bool CouplingPID::Release() {
-    return false;
+void CouplingPID::Release() {
+    false;
 }
